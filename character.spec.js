@@ -96,6 +96,12 @@ describe('Character', () => {
       expect(getCharacterHealth(deadEnemy)).toEqual(0)
       expect(getCharacterHealth(deaderEnemy)).toEqual(0)
     })
+    it('dies when health is 0', () => {
+      const char = createCharacter()
+      const enemy = creatCharacterWithHealth(1)
+      const deadEnemy = dealDamage(char, enemy)
+      expect(isCharacterDead(deadEnemy)).toEqual(true)
+    })
   })
 
   it('can heal', () => {
@@ -105,7 +111,6 @@ describe('Character', () => {
     expect(getCharacterHealth(healed)).toEqual(1000)
   })
 
-  it.todo('dies when health is 0')
   it.todo('cannot be healed if it is dead')
   it.todo('cannot be healed over 1000')
 })
