@@ -11,9 +11,16 @@
   "license": "ISC",
   "devDependencies": {
     "jest": "^24.9.0",
+    "lint-staged": "^9.2.5",
     "standard": "^14.1.0"
   },
   "dependencies": {
     "sanctuary": "^2.0.0"
+  },
+  "lint-staged": {
+    "*.js": [
+      "standard --fix",
+      "git add"
+    ]
   }
 }
