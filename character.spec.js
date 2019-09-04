@@ -21,11 +21,18 @@ const getCharacterHealth = getCharacterProp('health')
 const getCharacterLevel = getCharacterProp('level')
 
 const isAlive = health => health > 0
+const isFullHealth = health => health === 1000
 
 const isCharacterAlive = char =>
   S.pipe([
     getCharacterProp('health'),
     isAlive
+  ])(char)
+
+const isHealed = char =>
+  S.pipe([
+    getCharacterProp('health'),
+    isFullHealth
   ])(char)
 
 const isCharacterDead = char => !isCharacterAlive(char)
@@ -39,7 +46,7 @@ const applyDamage = (character) => damage => ({
 
 const applyDamage2 = damage => (character) => ({
   ...character,
-  health: Math.max(getCharacterHealth(character) - damage, 0)
+  health: Math.min(1000, Math.max(getCharacterHealth(character) - damage, 0))
 })
 
 const dealDamage = (attacker, attacked) => S.pipe([
@@ -50,7 +57,7 @@ const dealDamage = (attacker, attacked) => S.pipe([
 const heal = amount => character => S.ap(S.Just(applyDamage2(-amount)))(character)
 
 const isHealable = character => S.ifElse(
-  isCharacterAlive
+  () => S.and(isCharacterAlive(character))(!isHealed(character))
 )(
   character => S.Just(character)
 )(() => S.Nothing)(character)
@@ -130,7 +137,15 @@ describe('Character', () => {
       const stillDead = healCharacter(deadChar, 1)
       expect(isCharacterDead(stillDead)).toEqual(true)
     })
-  })
 
-  it.todo('cannot be healed over 1000')
+    it('cannot be healed over 1000', () => {
+      const char = createCharacter()
+      expect(getCharacterHealth(char)).toEqual(1000)
+      const healed = healCharacter(char, 1)
+      expect(getCharacterHealth(healed)).toEqual(1000)
+
+      const char2 = creatCharacterWithHealth(999)
+      expect(getCharacterHealth(healCharacter(char2, 100))).toEqual(1000)
+    })
+  })
 })
