@@ -4,16 +4,14 @@ const S = require('sanctuary')
 
 const createCharacter = () => ({
   health: 1000,
-    level: 1
+  level: 1
 })
 
-const getCharacterHealth = (char) => {
-  return S.prop('health')(char)
-}
+const getCharacterProp = prop => char => S.prop(prop)(char)
 
-const getCharacterLevel = (char) => {
-  return S.prop('level')(char)
-}
+const getCharacterHealth = getCharacterProp('health')
+
+const getCharacterLevel = getCharacterProp('level')
 
 describe('Character', () => {
   it('has health, starting at 1000', () => {
