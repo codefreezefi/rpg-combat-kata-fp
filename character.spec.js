@@ -18,16 +18,15 @@ const getCharacterHealth = getCharacterProp('health')
 
 const getCharacterLevel = getCharacterProp('level')
 
-const isHealthy = health => health > 0
+const isAlive = health => health > 0
 
-const isAlive = char =>
-  S.map(
-    isHealthy
-  )(
-    getCharacterProp('health')
-  )(char)
+const isCharacterAlive = char =>
+  S.pipe([
+    getCharacterProp('health'),
+    isAlive
+  ])(char)
 
-const isDead = char => !isAlive(char)
+const isCharacterDead = char => !isCharacterAlive(char)
 
 describe('Character', () => {
   it('has health, starting at 1000', () => {
@@ -46,19 +45,19 @@ describe('Character', () => {
     test('dead', () => {
       const char = createDeadCharacter()
       expect(
-        isDead(char)
+        isCharacterDead(char)
       ).toEqual(true)
       expect(
-        isAlive(char)
+        isCharacterAlive(char)
       ).toEqual(false)
     })
     test('or alive', () => {
       const char = createCharacter()
       expect(
-        isAlive(char)
+        isCharacterAlive(char)
       ).toEqual(true)
       expect(
-        isDead(char)
+        isCharacterDead(char)
       ).toEqual(false)
     })
   })
