@@ -7,9 +7,11 @@ const createCharacter = () => ({
   level: 1
 })
 
-const createDeadCharacter = () => ({
+const createDeadCharacter = () => creatCharacterWithHealth(0)
+
+const creatCharacterWithHealth = health => ({
   ...createCharacter(),
-  health: 0
+  health
 })
 
 const getCharacterProp = prop => char => S.prop(prop)(char)
@@ -39,6 +41,12 @@ const dealDamage = (attacker, attacked) => S.pipe([
   damageOfAttack(attacker),
   applyDamage(attacked)
 ])(attacked)
+
+const heal = amount => character => applyDamage(character)(-amount)
+
+const healCharacter = (character, amount) => S.pipe([
+  heal(amount)
+])(character)
 
 describe('Character', () => {
   it('has health, starting at 1000', () => {
@@ -79,7 +87,12 @@ describe('Character', () => {
     const damagedEnemy = dealDamage(char, enemy)
     expect(getCharacterHealth(damagedEnemy)).toBeLessThan(getCharacterHealth(enemy))
   })
-  it.todo('can heal')
+  it('can heal', () => {
+    const char = creatCharacterWithHealth(900)
+    expect(getCharacterHealth(char)).toEqual(900)
+    const healed = healCharacter(char, 100)
+    expect(getCharacterHealth(healed)).toEqual(1000)
+  })
   test.todo('health becomes 0 if damage is greater than health')
   it.todo('dies when health is 0')
   it.todo('cannot be healed if it is dead')
