@@ -41,20 +41,10 @@ const damageOfAttack = character => enemy => 1
 
 const applyDamage = (character) => damage => ({
   ...character,
-  health: Math.max(getCharacterHealth(character) - damage, 0)
+  health: calculateNewHealth(damage, getCharacterHealth(character))
 })
 
-const applyDamage2 = damage => (character) => ({
-  ...character,
-  health: Math.min(1000, Math.max(getCharacterHealth(character) - damage, 0))
-})
-
-const dealDamage = (attacker, attacked) => S.pipe([
-  damageOfAttack(attacker),
-  applyDamage(attacked)
-])(attacked)
-
-const heal = amount => character => S.ap(S.Just(applyDamage2(-amount)))(character)
+const calculateNewHealth = (damage, characterHealth) => Math.min(1000, Math.max(characterHealth - damage, 0))
 
 const isHealable = character => S.ifElse(
   () => S.and(isCharacterAlive(character))(!isHealed(character))
@@ -62,9 +52,15 @@ const isHealable = character => S.ifElse(
   character => S.Just(character)
 )(() => S.Nothing)(character)
 
+const dealDamage = (attacker, attacked) => S.pipe([
+  damageOfAttack(attacker),
+  applyDamage(attacked)
+])(attacked)
+
 const healCharacter = (character, amount) => S.pipe([
   isHealable,
-  heal(amount),
+  S.map(() => -amount),
+  S.lift2(applyDamage)(S.Just(character)),
   S.fromMaybe(character)
 ])(character)
 
