@@ -32,7 +32,7 @@ const isCharacterDead = char => !isCharacterAlive(char)
 
 const damageOfAttack = character => enemy => 1
 
-const applyDamage = character => damage => ({
+const applyDamage = (character) => damage => ({
   ...character,
   health: Math.max(getCharacterHealth(character) - damage, 0)
 })
@@ -81,19 +81,30 @@ describe('Character', () => {
       ).toEqual(false)
     })
   })
-  it('can deal damage', () => {
-    const char = createCharacter()
-    const enemy = createCharacter()
-    const damagedEnemy = dealDamage(char, enemy)
-    expect(getCharacterHealth(damagedEnemy)).toBeLessThan(getCharacterHealth(enemy))
+  describe('damage', () => {
+    it('can deal damage', () => {
+      const char = createCharacter()
+      const enemy = createCharacter()
+      const damagedEnemy = dealDamage(char, enemy)
+      expect(getCharacterHealth(damagedEnemy)).toBeLessThan(getCharacterHealth(enemy))
+    })
+    test('health becomes 0 if damage is greater than health', () => {
+      const char = createCharacter()
+      const enemy = creatCharacterWithHealth(1)
+      const deadEnemy = dealDamage(char, enemy)
+      const deaderEnemy = dealDamage(char, deadEnemy)
+      expect(getCharacterHealth(deadEnemy)).toEqual(0)
+      expect(getCharacterHealth(deaderEnemy)).toEqual(0)
+    })
   })
+
   it('can heal', () => {
     const char = creatCharacterWithHealth(900)
     expect(getCharacterHealth(char)).toEqual(900)
     const healed = healCharacter(char, 100)
     expect(getCharacterHealth(healed)).toEqual(1000)
   })
-  test.todo('health becomes 0 if damage is greater than health')
+
   it.todo('dies when health is 0')
   it.todo('cannot be healed if it is dead')
   it.todo('cannot be healed over 1000')
