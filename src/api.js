@@ -15,17 +15,6 @@ const isHealed = char =>
     isFullHealth
   ])(char)
 
-const isHealable = character => S.ifElse(
-  () => S.and(isCharacterAlive(character))(!isHealed(character))
-)(
-  character => S.Just(character)
-)(() => S.Nothing)(character)
-
-const applyDamage = (character) => damage => ({
-  ...character,
-  health: calculateNewHealth(damage, getCharacterHealth(character))
-})
-
 const calculateNewHealth = (damage, characterHealth) => Math.min(DEFAULT_AND_MAX_CHARACTER_HEALTH, Math.max(characterHealth - damage, 0))
 
 // -- PUBLIC API --
@@ -62,16 +51,37 @@ const isCharacterAlive = char =>
 
 // Commands
 
+/**
+ * @param attacker
+ * @param attacked
+ * @returns damaged attacker
+ */
 const dealDamage = (attacker, attacked) => S.pipe([
+  // calculate the damage
   () => 1,
-  applyDamage(attacked)
+  // calculate the new health
+  damage => calculateNewHealth(damage, getCharacterHealth(attacked)),
+  // Apply the damage
+  newHealth => ({
+    ...attacked,
+    health: newHealth
+  })
 ])(attacked)
 
+/**
+ * @param character object
+ * @param amount int
+ * @returns character object
+ */
 const healCharacter = (character, amount) => S.pipe([
-  isHealable,
-  S.map(() => -amount),
-  S.lift2(applyDamage)(S.Just(character)),
-  S.fromMaybe(character)
+  character => isCharacterAlive(character) && !isHealed(character),
+  isHealable => isHealable ? S.Just(character) : S.Nothing,
+  maybeHealableChar => S.map(character => calculateNewHealth(-amount, getCharacterHealth(character)))(maybeHealableChar),
+  maybeHealth => S.map(newHealth => ({
+    ...character,
+    health: newHealth
+  }))(maybeHealth),
+  maybeHealedCharacter => S.fromMaybe(character)(maybeHealedCharacter)
 ])(character)
 
 module.exports = {
