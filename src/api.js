@@ -18,7 +18,7 @@ const isHealed = S.pipe([
   isFullHealth
 ])
 
-const calculateNewHealth = (damage, characterHealth) => Math.min(DEFAULT_AND_MAX_CHARACTER_HEALTH, Math.max(characterHealth - damage, 0))
+const calculateNewHealth = characterHealth => damage => Math.min(DEFAULT_AND_MAX_CHARACTER_HEALTH, Math.max(characterHealth - damage, 0))
 
 // -- PUBLIC API --
 
@@ -61,7 +61,7 @@ const isCharacterAlive = char =>
  */
 const dealDamage = (attacker, attacked) => S.pipe([
   () => 1,
-  damage => calculateNewHealth(damage, getCharacterHealth(attacked)),
+  calculateNewHealth(getCharacterHealth(attacked)),
   newHealth => ({
     ...attacked,
     health: newHealth
@@ -75,7 +75,7 @@ const dealDamage = (attacker, attacked) => S.pipe([
 const healCharacter = character => S.pipe([
   character => isCharacterAlive(character) && !isHealed(character),
   isHealable => isHealable ? S.Just(character) : S.Nothing,
-  S.map(character => calculateNewHealth(-1, getCharacterHealth(character))),
+  S.map(character => calculateNewHealth(getCharacterHealth(character))(-1)),
   maybeHealth => S.map(newHealth => ({
     ...character,
     health: newHealth
