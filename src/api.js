@@ -1,6 +1,9 @@
 const {
   DEFAULT_AND_MAX_CHARACTER_HEALTH
 } = require('./core')
+const S = require('sanctuary')
+
+// -- Internal Helpers --
 
 const getCharacterProp = prop => char => S.prop(prop)(char)
 
@@ -14,25 +17,22 @@ const isHealed = char =>
     isFullHealth
   ])(char)
 
-const S = require('sanctuary')
-
-const dealDamage = (attacker, attacked) => S.pipe([
-  damageOfAttack(attacker),
-  applyDamage(attacked)
-])(attacked)
-
-const healCharacter = (character, amount) => S.pipe([
-  isHealable,
-  S.map(() => -amount),
-  S.lift2(applyDamage)(S.Just(character)),
-  S.fromMaybe(character)
-])(character)
-
 const isHealable = character => S.ifElse(
   () => S.and(isCharacterAlive(character))(!isHealed(character))
 )(
   character => S.Just(character)
 )(() => S.Nothing)(character)
+
+const damageOfAttack = character => enemy => 1
+
+const applyDamage = (character) => damage => ({
+  ...character,
+  health: calculateNewHealth(damage, getCharacterHealth(character))
+})
+
+const calculateNewHealth = (damage, characterHealth) => Math.min(DEFAULT_AND_MAX_CHARACTER_HEALTH, Math.max(characterHealth - damage, 0))
+
+// -- PUBLIC API --
 
 const getCharacterHealth = getCharacterProp('health')
 
@@ -46,14 +46,17 @@ const isCharacterAlive = char =>
     isAlive
   ])(char)
 
-const damageOfAttack = character => enemy => 1
+const dealDamage = (attacker, attacked) => S.pipe([
+  damageOfAttack(attacker),
+  applyDamage(attacked)
+])(attacked)
 
-const applyDamage = (character) => damage => ({
-  ...character,
-  health: calculateNewHealth(damage, getCharacterHealth(character))
-})
-
-const calculateNewHealth = (damage, characterHealth) => Math.min(DEFAULT_AND_MAX_CHARACTER_HEALTH, Math.max(characterHealth - damage, 0))
+const healCharacter = (character, amount) => S.pipe([
+  isHealable,
+  S.map(() => -amount),
+  S.lift2(applyDamage)(S.Just(character)),
+  S.fromMaybe(character)
+])(character)
 
 module.exports = {
   getCharacterLevel,
