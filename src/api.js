@@ -7,8 +7,6 @@ const S = require('sanctuary')
 
 const getCharacterProp = prop => char => S.prop(prop)(char)
 
-const isAlive = health => health > 0
-
 const isFullHealth = health => health === DEFAULT_AND_MAX_CHARACTER_HEALTH
 
 const isHealed = char =>
@@ -61,7 +59,7 @@ const isCharacterDead = char => !isCharacterAlive(char)
 const isCharacterAlive = char =>
   S.pipe([
     getCharacterProp('health'),
-    isAlive
+    health => health > 0
   ])(char)
 
 // Commands
