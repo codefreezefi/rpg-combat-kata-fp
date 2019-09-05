@@ -34,17 +34,37 @@ const calculateNewHealth = (damage, characterHealth) => Math.min(DEFAULT_AND_MAX
 
 // -- PUBLIC API --
 
+// Queries
+
+/**
+ * @param char
+ * @return int
+ */
 const getCharacterHealth = getCharacterProp('health')
 
+/**
+ * @param char
+ * @return int
+ */
 const getCharacterLevel = getCharacterProp('level')
 
+/**
+ * @param char
+ * @return boolean
+ */
 const isCharacterDead = char => !isCharacterAlive(char)
 
+/**
+ * @param char
+ * @return boolean
+ */
 const isCharacterAlive = char =>
   S.pipe([
     getCharacterProp('health'),
     isAlive
   ])(char)
+
+// Commands
 
 const dealDamage = (attacker, attacked) => S.pipe([
   damageOfAttack(attacker),
