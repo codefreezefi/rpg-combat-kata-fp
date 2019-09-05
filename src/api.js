@@ -70,13 +70,12 @@ const dealDamage = (attacker, attacked) => S.pipe([
 
 /**
  * @param character object
- * @param amount int
  * @returns character object
  */
-const healCharacter = (character, amount) => S.pipe([
+const healCharacter = character => S.pipe([
   character => isCharacterAlive(character) && !isHealed(character),
   isHealable => isHealable ? S.Just(character) : S.Nothing,
-  maybeHealableChar => S.map(character => calculateNewHealth(-amount, getCharacterHealth(character)))(maybeHealableChar),
+  S.map(character => calculateNewHealth(-1, getCharacterHealth(character))),
   maybeHealth => S.map(newHealth => ({
     ...character,
     health: newHealth

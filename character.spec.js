@@ -63,24 +63,24 @@ describe('Character', () => {
     it('can heal', () => {
       const char = createCharacter.withHealth(900)
       expect(getCharacterHealth(char)).toEqual(900)
-      const healed = healCharacter(char, 100)
-      expect(getCharacterHealth(healed)).toEqual(1000)
+      const healed = healCharacter(char)
+      expect(getCharacterHealth(healed)).toBeGreaterThan(900)
     })
 
     it('cannot be healed if it is dead', () => {
       const deadChar = createCharacter.dead()
-      const stillDead = healCharacter(deadChar, 1)
+      const stillDead = healCharacter(deadChar)
       expect(isCharacterDead(stillDead)).toEqual(true)
     })
 
     it('cannot be healed over 1000', () => {
       const char = createCharacter.default()
       expect(getCharacterHealth(char)).toEqual(1000)
-      const healed = healCharacter(char, 1)
+      const healed = healCharacter(char)
       expect(getCharacterHealth(healed)).toEqual(1000)
 
       const char2 = createCharacter.withHealth(999)
-      expect(getCharacterHealth(healCharacter(char2, 100))).toEqual(1000)
+      expect(getCharacterHealth(healCharacter(healCharacter(char2)))).toEqual(1000)
     })
   })
 })
