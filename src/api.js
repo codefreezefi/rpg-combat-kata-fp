@@ -21,8 +21,6 @@ const isHealable = character => S.ifElse(
   character => S.Just(character)
 )(() => S.Nothing)(character)
 
-const damageOfAttack = character => enemy => 1
-
 const applyDamage = (character) => damage => ({
   ...character,
   health: calculateNewHealth(damage, getCharacterHealth(character))
@@ -65,7 +63,7 @@ const isCharacterAlive = char =>
 // Commands
 
 const dealDamage = (attacker, attacked) => S.pipe([
-  damageOfAttack(attacker),
+  () => 1,
   applyDamage(attacked)
 ])(attacked)
 
