@@ -9,11 +9,14 @@ const getCharacterProp = prop => char => S.prop(prop)(char)
 
 const isFullHealth = health => health === DEFAULT_AND_MAX_CHARACTER_HEALTH
 
-const isHealed = char =>
-  S.pipe([
-    getCharacterProp('health'),
-    isFullHealth
-  ])(char)
+/**
+ * @param char Object
+ * @returns boolean
+ */
+const isHealed = S.pipe([
+  getCharacterProp('health'),
+  isFullHealth
+])
 
 const calculateNewHealth = (damage, characterHealth) => Math.min(DEFAULT_AND_MAX_CHARACTER_HEALTH, Math.max(characterHealth - damage, 0))
 
