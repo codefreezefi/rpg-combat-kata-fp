@@ -57,11 +57,8 @@ const isCharacterAlive = char =>
  * @returns damaged attacker
  */
 const dealDamage = (attacker, attacked) => S.pipe([
-  // calculate the damage
   () => 1,
-  // calculate the new health
   damage => calculateNewHealth(damage, getCharacterHealth(attacked)),
-  // Apply the damage
   newHealth => ({
     ...attacked,
     health: newHealth
