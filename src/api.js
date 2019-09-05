@@ -1,8 +1,13 @@
+const {
+  DEFAULT_AND_MAX_CHARACTER_HEALTH,
+  START_LEVEL
+} = require('./core')
+
 const getCharacterProp = prop => char => S.prop(prop)(char)
 
 const isAlive = health => health > 0
 
-const isFullHealth = health => health === 1000
+const isFullHealth = health => health === DEFAULT_AND_MAX_CHARACTER_HEALTH
 
 const isHealed = char =>
   S.pipe([
@@ -13,8 +18,8 @@ const isHealed = char =>
 const S = require('sanctuary')
 
 const createCharacter = () => ({
-  health: 1000,
-  level: 1
+  health: DEFAULT_AND_MAX_CHARACTER_HEALTH,
+  level: START_LEVEL
 })
 
 const createDeadCharacter = () => creatCharacterWithHealth(0)
@@ -60,7 +65,7 @@ const applyDamage = (character) => damage => ({
   health: calculateNewHealth(damage, getCharacterHealth(character))
 })
 
-const calculateNewHealth = (damage, characterHealth) => Math.min(1000, Math.max(characterHealth - damage, 0))
+const calculateNewHealth = (damage, characterHealth) => Math.min(DEFAULT_AND_MAX_CHARACTER_HEALTH, Math.max(characterHealth - damage, 0))
 
 module.exports = {
   createCharacter,
