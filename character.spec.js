@@ -63,7 +63,12 @@ describe('Character', () => {
       expect(isCharacterDead(deadEnemy)).toEqual(true)
     })
     describe('depends on level', () => {
-      test.todo('if target is 5 or more levels above, the damage applied will be reduced by 50%')
+      test('if target is 5 or more levels above, the damage applied will be reduced by 50%', () => {
+        const char = createCharacter.default()
+        const highLevelEnemy = createCharacter.withLevel(getCharacterLevel(char) + 6)
+        const damagedEnemy = dealDamage(char, highLevelEnemy, 100)
+        expect(getCharacterHealth(damagedEnemy)).toEqual(950)
+      })
       test.todo('if target is 5 or more levels below, the damage applied will be boosted by 50%')
     })
   })
