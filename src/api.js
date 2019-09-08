@@ -67,7 +67,11 @@ const update = u => o => S.Right({
 const dealDamage = (attacker, attacked, damage = 1) => S.fromEither(attacked)(S.pipeK([
   attacked => attacker === attacked ? S.Left('Character cannot attack self') : S.Right(attacked),
   () => S.Right(S.sub(getCharacterLevel(attacker))(getCharacterLevel(attacked))),
-  S.ifElse(levelDiff => levelDiff > 5)(() => S.Right(damage * 0.5))(() => S.Right(damage)),
+  levelDiff => S.Right(S.pipe([
+    mod => S.ifElse(() => levelDiff >= 5)(() => mod * 0.5)(() => mod)(mod),
+    mod => S.ifElse(() => levelDiff <= -5)(() => mod * 1.5)(() => mod)(mod)
+  ])(1)),
+  damageModifier => S.Right(damage * damageModifier),
   realDamage => S.Right(calculateNewHealth(getCharacterHealth(attacked))(realDamage)),
   newHealth => update({ health: newHealth })(attacked)
 ])(S.Right(attacked)))
