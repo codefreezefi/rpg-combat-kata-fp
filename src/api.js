@@ -52,6 +52,11 @@ const isCharacterAlive = char =>
     health => health > 0
   ])(char)
 
+const update = u => o => S.Right({
+  ...o,
+  ...u
+})
+
 // Commands
 
 /**
@@ -59,22 +64,11 @@ const isCharacterAlive = char =>
  * @param attacked
  * @returns damaged attacker
  */
-const dealDamage = (attacker, attacked) => S.pipe([
-  () => attacker === attacked,
-  attackerEqualsAttacked => attackerEqualsAttacked ? S.Nothing : S.Just(attacked),
-  S.map(() => 1),
-  maybeDamage => S.map(calculateNewHealth(getCharacterHealth(attacked)))(maybeDamage),
-  maybeNewHealth => S.map(newHealth => ({
-    ...attacked,
-    health: newHealth
-  }))(maybeNewHealth),
-  maybeDamagedAttacked => S.fromMaybe(attacked)(maybeDamagedAttacked)
-])(attacked)
-
-const update = u => o => S.Right({
-  ...o,
-  ...u
-})
+const dealDamage = (attacker, attacked) => S.fromEither(attacked)(S.pipeK([
+  attacked => attacker === attacked ? S.Left('Character cannot attack self') : S.Right(attacked),
+  () => S.Right(calculateNewHealth(getCharacterHealth(attacked))(1)),
+  newHealth => update({ health: newHealth })(attacked)
+])(S.Right(attacked)))
 
 /**
  * @param character object
