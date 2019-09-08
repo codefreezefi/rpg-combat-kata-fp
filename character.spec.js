@@ -43,6 +43,11 @@ describe('Character', () => {
       const damagedEnemy = dealDamage(char, enemy)
       expect(getCharacterHealth(damagedEnemy)).toBeLessThan(getCharacterHealth(enemy))
     })
+    it('can deal damage to enemies, but not self', () => {
+      const char = createCharacter.default()
+      const damagedChar = dealDamage(char, char)
+      expect(getCharacterHealth(damagedChar)).toEqual(getCharacterHealth(char))
+    })
     test('health becomes 0 if damage is greater than health', () => {
       const char = createCharacter.default()
       const enemy = createCharacter.withHealth(1)
@@ -57,14 +62,26 @@ describe('Character', () => {
       const deadEnemy = dealDamage(char, enemy)
       expect(isCharacterDead(deadEnemy)).toEqual(true)
     })
+    describe('depends on level', () => {
+      test.todo('if target is 5 or more levels above, the damage applied will be reduced by 50%')
+      test.todo('if target is 5 or more levels below, the damage applied will be boosted by 50%')
+    })
   })
 
   describe('healing', () => {
-    it('can heal', () => {
+    it('can heal themselves', () => {
       const char = createCharacter.withHealth(900)
       expect(getCharacterHealth(char)).toEqual(900)
       const healed = healCharacter(char)
       expect(getCharacterHealth(healed)).toBeGreaterThan(900)
+    })
+
+    it('but not enemies', () => {
+      const char = createCharacter.default()
+      const enemy = createCharacter.withHealth(900)
+      expect(getCharacterHealth(enemy)).toEqual(900)
+      const healed = healCharacter(enemy, char)
+      expect(getCharacterHealth(healed)).toEqual(900)
     })
 
     it('cannot be healed if it is dead', () => {

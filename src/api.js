@@ -60,28 +60,31 @@ const isCharacterAlive = char =>
  * @returns damaged attacker
  */
 const dealDamage = (attacker, attacked) => S.pipe([
-  () => 1,
-  calculateNewHealth(getCharacterHealth(attacked)),
-  newHealth => ({
+  () => attacker === attacked,
+  attackerEqualsAttacked => attackerEqualsAttacked ? S.Nothing : S.Just(attacked),
+  S.map(() => 1),
+  maybeDamage => S.map(calculateNewHealth(getCharacterHealth(attacked)))(maybeDamage),
+  maybeNewHealth => S.map(newHealth => ({
     ...attacked,
     health: newHealth
-  })
+  }))(maybeNewHealth),
+  maybeDamagedAttacked => S.fromMaybe(attacked)(maybeDamagedAttacked)
 ])(attacked)
 
 /**
  * @param character object
+ * @param healer object
  * @returns character object
  */
-const healCharacter = character => S.pipe([
-  character => isCharacterAlive(character) && !isHealed(character),
-  isHealable => isHealable ? S.Just(character) : S.Nothing,
-  S.map(character => calculateNewHealth(getCharacterHealth(character))(-1)),
-  maybeHealth => S.map(newHealth => ({
+const healCharacter = (character, healer) => S.fromEither(character)(S.pipeK([
+  character => (healer || character) === character ? S.Right(character) : S.Left('Character can only heal self'),
+  character => isCharacterAlive(character) && !isHealed(character) ? S.Right(character) : S.Left('Character cannot be healed'),
+  character => S.Right(calculateNewHealth(getCharacterHealth(character))(-1)),
+  newHealth => S.Right({
     ...character,
     health: newHealth
-  }))(maybeHealth),
-  maybeHealedCharacter => S.fromMaybe(character)(maybeHealedCharacter)
-])(character)
+  })
+])(S.Right(character)))
 
 module.exports = {
   getCharacterLevel,
