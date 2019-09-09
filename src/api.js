@@ -13,6 +13,25 @@ const isFullHealth = health => health === DEFAULT_AND_MAX_CHARACTER_HEALTH
 
 const isClass = className => char => S.prop('class')(char) === className
 
+const inList = list => item => S.pipe([
+  S.find(S.equals(item)),
+  S.ifElse(S.isJust)(() => true)(() => false)
+])(list)
+
+const isAlly = char1 => char2 => {
+  const char1Factions = S.pipe([
+    S.prop('factions'),
+    S.keys
+  ])(char1)
+  const char2Factions = S.pipe([
+    S.prop('factions'),
+    S.keys
+  ])(char2)
+  return S.pipe([
+    S.any(inList(char2Factions))
+  ])(char1Factions)
+}
+
 const isMeleeFighter = isClass(MELEE_FIGHTER)
 const isRangedFighter = isClass(RANGED_FIGHTER)
 
@@ -80,6 +99,9 @@ const dealDamage = ({ attacker, attacked, damage, distance }) => S.fromEither(at
   damageModifier => S.Right(S.pipe([
     mod => S.ifElse(() => isMeleeFighter(attacker) && distance > 2)(() => 0)(() => mod)(mod),
     mod => S.ifElse(() => isRangedFighter(attacker) && distance > 20)(() => 0)(() => mod)(mod)
+  ])(damageModifier)),
+  damageModifier => S.Right(S.pipe([
+    mod => S.ifElse(() => isAlly(attacker)(attacked))(() => 0)(() => mod)(mod)
   ])(damageModifier)),
   damageModifier => S.Right((damage || 1) * damageModifier),
   realDamage => S.Right(calculateNewHealth(getCharacterHealth(attacked))(realDamage)),

@@ -81,7 +81,15 @@ describe('Character', () => {
       const damagedChar = dealDamage({ attacker: char, attacked: char })
       expect(getCharacterHealth(damagedChar)).toEqual(getCharacterHealth(char))
     })
-    test.todo('and not to allies')
+    test('and not to allies', () => {
+      const char = joinFaction(createCharacter.default(), 'Lannister')
+      const ally = joinFaction(createCharacter.default(), 'Lannister')
+      const enemy = joinFaction(createCharacter.default(), 'Tyrell')
+      const undamagedAlly = dealDamage({ attacker: char, attacked: ally })
+      const damagedEnemy = dealDamage({ attacker: char, attacked: enemy })
+      expect(getCharacterHealth(undamagedAlly)).toEqual(getCharacterHealth(ally))
+      expect(getCharacterHealth(damagedEnemy)).toBeLessThan(getCharacterHealth(enemy))
+    })
     test('health becomes 0 if damage is greater than health', () => {
       const char = createCharacter.default()
       const enemy = createCharacter.withHealth(1)
