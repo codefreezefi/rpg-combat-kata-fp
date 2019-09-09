@@ -37,18 +37,27 @@ describe('Character', () => {
       ).toEqual(false)
     })
   })
-  describe('damage', () => {
-    it('can deal damage', () => {
+
+  describe('may belong to factions and can', () => {
+    test.todo('join one')
+    test.todo('or more factions')
+    test.todo('leave one')
+    test.todo('or more factions')
+  })
+
+  describe('can deal damage', () => {
+    test('to enemies', () => {
       const char = createCharacter.default()
       const enemy = createCharacter.default()
       const damagedEnemy = dealDamage({ attacker: char, attacked: enemy })
       expect(getCharacterHealth(damagedEnemy)).toBeLessThan(getCharacterHealth(enemy))
     })
-    it('can deal damage to enemies, but not self', () => {
+    test('but not self', () => {
       const char = createCharacter.default()
       const damagedChar = dealDamage({ attacker: char, attacked: char })
       expect(getCharacterHealth(damagedChar)).toEqual(getCharacterHealth(char))
     })
+    test.todo('and not to allies')
     test('health becomes 0 if damage is greater than health', () => {
       const char = createCharacter.default()
       const enemy = createCharacter.withHealth(1)
@@ -63,7 +72,7 @@ describe('Character', () => {
       const deadEnemy = dealDamage({ attacker: char, attacked: enemy })
       expect(isCharacterDead(deadEnemy)).toEqual(true)
     })
-    describe('depends on level', () => {
+    describe('depending on level', () => {
       test('if target is 5 or more levels above, the damage applied will be reduced by 50%', () => {
         const char = createCharacter.default()
         const highLevelEnemy = createCharacter.withLevel(getCharacterLevel(char) + 5)
@@ -77,7 +86,7 @@ describe('Character', () => {
         expect(getCharacterHealth(damagedEnemy)).toEqual(850)
       })
     })
-    describe('in order to deal damage the targe must be in range', () => {
+    describe('if the target is in range', () => {
       test('if the player is a melee fighter, their range is 2 meters', () => {
         const meleeFighter = createCharacter.withClass(MELEE_FIGHTER)
         const enemy = createCharacter.default()
@@ -97,13 +106,15 @@ describe('Character', () => {
     })
   })
 
-  describe('healing', () => {
-    it('can heal themselves', () => {
+  describe('can heal', () => {
+    it('themselves', () => {
       const char = createCharacter.withHealth(900)
       expect(getCharacterHealth(char)).toEqual(900)
       const healed = healCharacter(char)
       expect(getCharacterHealth(healed)).toBeGreaterThan(900)
     })
+
+    test.todo('and allies')
 
     it('but not enemies', () => {
       const char = createCharacter.default()
@@ -113,13 +124,13 @@ describe('Character', () => {
       expect(getCharacterHealth(healed)).toEqual(900)
     })
 
-    it('cannot be healed if it is dead', () => {
+    it('but not if it is dead', () => {
       const deadChar = createCharacter.dead()
       const stillDead = healCharacter(deadChar)
       expect(isCharacterDead(stillDead)).toEqual(true)
     })
 
-    it('cannot be healed over 1000', () => {
+    test('and not over 1000', () => {
       const char = createCharacter.default()
       expect(getCharacterHealth(char)).toEqual(1000)
       const healed = healCharacter(char)
