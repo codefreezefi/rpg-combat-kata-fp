@@ -1,6 +1,7 @@
 /* globals expect, it, test, describe */
 
 const { getCharacterHealth, getCharacterLevel, isCharacterDead, isCharacterAlive, dealDamage, healCharacter } = require('./src/api')
+const { MELEE_FIGHTER, RANGED_FIGHTER } = require('./src/core')
 const createCharacter = require('./src/createCharacter')
 
 describe('Character', () => {
@@ -77,15 +78,22 @@ describe('Character', () => {
       })
     })
     describe('in order to deal damage the targe must be in range', () => {
-      test.skip('if the player is a melee fighter, their range is 2 meters', () => {
-        const meleeFighter = createCharacter.withClass('melee')
+      test('if the player is a melee fighter, their range is 2 meters', () => {
+        const meleeFighter = createCharacter.withClass(MELEE_FIGHTER)
         const enemy = createCharacter.default()
         const damagedEnemyInRange = dealDamage({ attacker: meleeFighter, attacked: enemy, distance: 2 })
         expect(getCharacterHealth(damagedEnemyInRange)).toBeLessThan(getCharacterHealth(enemy))
         const undamageEnemyOutOfRange = dealDamage({ attacker: meleeFighter, attacked: enemy, distance: 3 })
         expect(getCharacterHealth(undamageEnemyOutOfRange)).toEqual(getCharacterHealth(enemy))
       })
-      test.todo('if the player is a ranged fighter, their range is 20 meters')
+      test('if the player is a ranged fighter, their range is 20 meters', () => {
+        const rangedFighter = createCharacter.withClass(RANGED_FIGHTER)
+        const enemy = createCharacter.default()
+        const damagedEnemyInRange = dealDamage({ attacker: rangedFighter, attacked: enemy, distance: 20 })
+        expect(getCharacterHealth(damagedEnemyInRange)).toBeLessThan(getCharacterHealth(enemy))
+        const undamageEnemyOutOfRange = dealDamage({ attacker: rangedFighter, attacked: enemy, distance: 21 })
+        expect(getCharacterHealth(undamageEnemyOutOfRange)).toEqual(getCharacterHealth(enemy))
+      })
     })
   })
 

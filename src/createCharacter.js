@@ -1,11 +1,13 @@
 const {
   DEFAULT_AND_MAX_CHARACTER_HEALTH,
-  START_LEVEL
+  START_LEVEL,
+  classes
 } = require('./core')
 
 const createCharacter = () => ({
   health: DEFAULT_AND_MAX_CHARACTER_HEALTH,
-  level: START_LEVEL
+  level: START_LEVEL,
+  class: classes[Math.round(Math.random() * (classes.length - 1))]
 })
 
 const createDeadCharacter = () => creatCharacterWithHealth(0)
