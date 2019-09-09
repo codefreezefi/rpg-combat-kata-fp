@@ -59,7 +59,7 @@ const isCharacterAlive = char =>
     health => health > 0
   ])(char)
 
-const update = u => o => S.Right({
+const update = u => o => ({
   ...o,
   ...u
 })
@@ -83,7 +83,7 @@ const dealDamage = ({ attacker, attacked, damage, distance }) => S.fromEither(at
   ])(damageModifier)),
   damageModifier => S.Right((damage || 1) * damageModifier),
   realDamage => S.Right(calculateNewHealth(getCharacterHealth(attacked))(realDamage)),
-  newHealth => update({ health: newHealth })(attacked)
+  newHealth => S.Right(update({ health: newHealth })(attacked))
 ])(S.Right(attacked)))
 
 /**
@@ -95,8 +95,42 @@ const healCharacter = (character, healer) => S.fromEither(character)(S.pipeK([
   character => (healer || character) === character ? S.Right(character) : S.Left('Character can only heal self'),
   character => isCharacterAlive(character) && !isHealed(character) ? S.Right(character) : S.Left('Character cannot be healed'),
   character => S.Right(calculateNewHealth(getCharacterHealth(character))(-1)),
-  newHealth => update({ health: newHealth })(character)
+  newHealth => S.Right(update({ health: newHealth })(character))
 ])(S.Right(character)))
+
+/**
+ * @param character object
+ * @param faction string
+ * @returns object
+ */
+const joinFaction = (character, faction) => S.pipe([
+  S.prop('factions'),
+  S.insert(faction)(true),
+  newFactions => update({ factions: newFactions })(character)
+])(character)
+
+/**
+ * @param character object
+ * @param faction string
+ * @returns object
+ */
+const leaveFaction = (character, faction) => S.pipe([
+  S.prop('factions'),
+  S.remove(faction),
+  newFactions => update({ factions: newFactions })(character)
+])(character)
+
+/**
+ * @param character object
+ * @param faction string
+ * @returns boolean
+ */
+const charIsInFaction = (character, faction) => S.pipe([
+  S.prop('factions'),
+  S.keys,
+  S.find(S.equals(faction)),
+  S.ifElse(S.isJust)(() => true)(() => false)
+])(character)
 
 module.exports = {
   getCharacterLevel,
@@ -104,5 +138,8 @@ module.exports = {
   isCharacterDead,
   isCharacterAlive,
   dealDamage,
-  healCharacter
+  healCharacter,
+  joinFaction,
+  charIsInFaction,
+  leaveFaction
 }

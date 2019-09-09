@@ -1,6 +1,6 @@
 /* globals expect, it, test, describe */
 
-const { getCharacterHealth, getCharacterLevel, isCharacterDead, isCharacterAlive, dealDamage, healCharacter } = require('./src/api')
+const { getCharacterHealth, getCharacterLevel, isCharacterDead, isCharacterAlive, dealDamage, healCharacter, joinFaction, charIsInFaction, leaveFaction } = require('./src/api')
 const { MELEE_FIGHTER, RANGED_FIGHTER } = require('./src/core')
 const createCharacter = require('./src/createCharacter')
 
@@ -39,10 +39,34 @@ describe('Character', () => {
   })
 
   describe('may belong to factions and can', () => {
-    test.todo('join one')
-    test.todo('or more factions')
-    test.todo('leave one')
-    test.todo('or more factions')
+    test('join one', () => {
+      const char = createCharacter.default()
+      const charInLannister = joinFaction(char, 'Lannister')
+      expect(charIsInFaction(charInLannister, 'Lannister')).toEqual(true)
+      expect(charIsInFaction(charInLannister, 'Tyrell')).toEqual(false)
+    })
+    test('or more factions', () => {
+      const char = createCharacter.default()
+      const charInLannister = joinFaction(char, 'Lannister')
+      const charInLannisterAndTyrell = joinFaction(charInLannister, 'Tyrell')
+      expect(charIsInFaction(charInLannisterAndTyrell, 'Lannister')).toEqual(true)
+      expect(charIsInFaction(charInLannisterAndTyrell, 'Tyrell')).toEqual(true)
+    })
+    test('leave one', () => {
+      const char = createCharacter.default()
+      const charInLannister = joinFaction(char, 'Lannister')
+      const charLeftLannister = leaveFaction(charInLannister, 'Lannister')
+      expect(charIsInFaction(charLeftLannister, 'Lannister')).toEqual(false)
+    })
+    test('or more factions', () => {
+      const char = createCharacter.default()
+      const charInLannister = joinFaction(char, 'Lannister')
+      const charInLannisterAndTyrell = joinFaction(charInLannister, 'Tyrell')
+      const charLeftLannister = leaveFaction(charInLannisterAndTyrell, 'Lannister')
+      const charLeftLannisterAndTyrell = leaveFaction(charLeftLannister, 'Tyrell')
+      expect(charIsInFaction(charLeftLannisterAndTyrell, 'Lannister')).toEqual(false)
+      expect(charIsInFaction(charLeftLannisterAndTyrell, 'Tyrell')).toEqual(false)
+    })
   })
 
   describe('can deal damage', () => {
