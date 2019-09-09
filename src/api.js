@@ -94,15 +94,11 @@ const dealDamage = ({ attacker, attacked, damage, distance }) => S.fromEither(at
   () => S.Right(S.sub(getCharacterLevel(attacker))(getCharacterLevel(attacked))),
   levelDiff => S.Right(S.pipe([
     mod => S.ifElse(() => levelDiff >= 5)(() => mod * 0.5)(() => mod)(mod),
-    mod => S.ifElse(() => levelDiff <= -5)(() => mod * 1.5)(() => mod)(mod)
-  ])(1)),
-  damageModifier => S.Right(S.pipe([
+    mod => S.ifElse(() => levelDiff <= -5)(() => mod * 1.5)(() => mod)(mod),
     mod => S.ifElse(() => isMeleeFighter(attacker) && distance > 2)(() => 0)(() => mod)(mod),
-    mod => S.ifElse(() => isRangedFighter(attacker) && distance > 20)(() => 0)(() => mod)(mod)
-  ])(damageModifier)),
-  damageModifier => S.Right(S.pipe([
+    mod => S.ifElse(() => isRangedFighter(attacker) && distance > 20)(() => 0)(() => mod)(mod),
     mod => S.ifElse(() => isAlly(attacker)(attacked))(() => 0)(() => mod)(mod)
-  ])(damageModifier)),
+  ])(1)),
   damageModifier => S.Right((damage || 1) * damageModifier),
   realDamage => S.Right(calculateNewHealth(getCharacterHealth(attacked))(realDamage)),
   newHealth => S.Right(update({ health: newHealth })(attacked))
