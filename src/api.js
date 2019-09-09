@@ -110,7 +110,7 @@ const dealDamage = ({ attacker, attacked, damage, distance }) => S.fromEither(at
  * @returns character object
  */
 const healCharacter = (character, healer) => S.fromEither(character)(S.pipeK([
-  character => (healer || character) === character ? S.Right(character) : S.Left('Character can only heal self'),
+  character => (healer || character) === character || isAlly(character)(healer) ? S.Right(character) : S.Left('Character can only heal self or allies'),
   character => isCharacterAlive(character) && !isHealed(character) ? S.Right(character) : S.Left('Character cannot be healed'),
   character => S.Right(calculateNewHealth(getCharacterHealth(character))(-1)),
   newHealth => S.Right(update({ health: newHealth })(character))

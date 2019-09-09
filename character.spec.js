@@ -139,16 +139,21 @@ describe('Character', () => {
   })
 
   describe('can heal', () => {
-    it('themselves', () => {
+    test('themselves', () => {
       const char = createCharacter.withHealth(900)
       expect(getCharacterHealth(char)).toEqual(900)
       const healed = healCharacter(char)
       expect(getCharacterHealth(healed)).toBeGreaterThan(900)
     })
 
-    test.todo('and allies')
+    test('and allies', () => {
+      const char = joinFaction(createCharacter.default(), 'Lannister')
+      const ally = joinFaction(createCharacter.withHealth(900), 'Lannister')
+      const healed = healCharacter(ally, char)
+      expect(getCharacterHealth(healed)).toBeGreaterThan(900)
+    })
 
-    it('but not enemies', () => {
+    test('but not enemies', () => {
       const char = createCharacter.default()
       const enemy = createCharacter.withHealth(900)
       expect(getCharacterHealth(enemy)).toEqual(900)
@@ -156,7 +161,7 @@ describe('Character', () => {
       expect(getCharacterHealth(healed)).toEqual(900)
     })
 
-    it('but not if it is dead', () => {
+    test('but not if it is dead', () => {
       const deadChar = createCharacter.dead()
       const stillDead = healCharacter(deadChar)
       expect(isCharacterDead(stillDead)).toEqual(true)
