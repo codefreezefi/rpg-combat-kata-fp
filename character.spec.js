@@ -136,6 +136,10 @@ describe('Character', () => {
         expect(getCharacterHealth(undamageEnemyOutOfRange)).toEqual(getCharacterHealth(enemy))
       })
     })
+    describe('to other things that are not characters (props)', () => {
+      it.todo('can attack a prop')
+      test.todo('if it has health')
+    })
   })
 
   describe('can heal', () => {
@@ -176,5 +180,13 @@ describe('Character', () => {
       const char2 = createCharacter.withHealth(999)
       expect(getCharacterHealth(healCharacter(healCharacter(char2)))).toEqual(1000)
     })
+
+    test.todo('but not props')
   })
+})
+
+describe('Props', () => {
+  it.todo('cannot deal damage')
+  it.todo('cannot belong to factions')
+  it.todo('can have higher start health (e.g. a house with 2000 health)')
 })
