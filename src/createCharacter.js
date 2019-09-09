@@ -19,9 +19,15 @@ const creatCharacterWithLevel = level => ({
   level
 })
 
+const creatCharacterWithClass = className => ({
+  ...createCharacter(),
+  class: className
+})
+
 module.exports = {
   default: createCharacter,
   dead: createDeadCharacter,
   withHealth: creatCharacterWithHealth,
-  withLevel: creatCharacterWithLevel
+  withLevel: creatCharacterWithLevel,
+  withClass: creatCharacterWithClass
 }
