@@ -76,6 +76,10 @@ describe('Character', () => {
         expect(getCharacterHealth(damagedEnemy)).toEqual(850)
       })
     })
+    describe('in order to deal damage the targe must be in range', () => {
+      test.todo('if the player is a melee fighter, their range is 2 meters')
+      test.todo('if the player is a ranged fighter, their range is 20 meters')
+    })
   })
 
   describe('healing', () => {
