@@ -2,6 +2,13 @@
 
 The [RPG Combat Kata](https://de.slideshare.net/DanielOjedaLoisel/rpg-combat-kata) implemented using [Sanctuary.js](https://sanctuary.js.org/).
 
+The principles for this implementation were:
+
+- functional, point free programming
+- point free programming
+- immutable API
+- keeping the business rules readable in one place
+
 ## How to run the tests
 
     git clone https://github.com/codefreezefi/rpg-combat-kata-fp
