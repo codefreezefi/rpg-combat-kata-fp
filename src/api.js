@@ -18,9 +18,11 @@ const inList = list => item => S.pipe([
   S.isJust
 ])(list)
 
+const eitherFactions = S.map(S.maybeToEither('Character cannot belong to factions'))(S.get(S.is($.StrMap($.Boolean)))('factions'))
+
 const getFactions = char => S.fromEither([])(S.pipeK([
-  character => S.maybeToEither('Character cannot belong to factions')(S.get(S.is($.StrMap($.Boolean)))('factions')(character)),
-  factions => S.Right(S.keys(factions))
+  eitherFactions,
+  S.map(S.Right)(S.keys)
 ])(S.Right(char)))
 
 const isAlly = char1 => char2 => {
@@ -122,10 +124,10 @@ const heal = ({ character, healer }) => S.fromEither(character)(S.pipeK([
     S.prop('health'),
     S.lt(DEFAULT_AND_MAX_CHARACTER_HEALTH)
   ])(character)))(S.Right)(() => S.Left('Character cannot be healed')),
-  character => S.Right(S.pipe([
+  S.map(S.Right)(S.pipe([
     getHealth,
     S.add(1)
-  ])(character)),
+  ])),
   S.map(S.Right)(newHealth => update({ health: newHealth })(character))
 ])(S.Right(character)))
 
@@ -135,9 +137,9 @@ const heal = ({ character, healer }) => S.fromEither(character)(S.pipeK([
  * @returns object
  */
 const joinFaction = (character, faction) => S.fromEither(character)(S.pipeK([
-  character => S.maybeToEither('Character cannot belong to factions')(S.get(S.is($.StrMap($.Boolean)))('factions')(character)),
-  factions => S.Right(S.insert(faction)(true)(factions)),
-  newFactions => S.Right(update({ factions: newFactions })(character))
+  eitherFactions,
+  S.map(S.Right)(S.insert(faction)(true)),
+  S.map(S.Right)(newFactions => update({ factions: newFactions })(character))
 ])(S.Right(character)))
 
 /**
@@ -157,8 +159,8 @@ const leaveFaction = (character, faction) => S.pipe([
  * @returns boolean
  */
 const isInFaction = (character, faction) => S.fromEither(false)(S.pipeK([
-  character => S.Right(getFactions(character)),
-  factionNames => S.ifElse(() => S.isNothing(S.find(S.equals(faction))(factionNames)))(() => S.Left('Not in faction'))(() => S.Right(true))(factionNames)
+  S.map(S.Right)(getFactions),
+  S.ifElse(factionNames => S.isNothing(S.find(S.equals(faction))(factionNames)))(() => S.Left('Not in faction'))(() => S.Right(true))
 ])(S.Right(character)))
 
 module.exports = {
