@@ -154,8 +154,7 @@ const leaveFaction = (character, faction) => S.pipe([
  * @returns boolean
  */
 const charIsInFaction = (character, faction) => S.fromEither(false)(S.pipeK([
-  character => S.maybeToEither('Character cannot belong to factions')(S.get(S.is($.StrMap($.Boolean)))('factions')(character)),
-  factions => S.Right(S.keys(factions)),
+  character => S.Right(getCharacterFactions(character)),
   factionNames => S.ifElse(() => S.isNothing(S.find(S.equals(faction))(factionNames)))(() => S.Left('Not in faction'))(() => S.Right(true))(factionNames)
 ])(S.Right(character)))
 
