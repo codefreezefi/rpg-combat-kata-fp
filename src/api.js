@@ -108,7 +108,7 @@ const update = u => o => ({
  * @param distance integer
  * @returns object
  */
-const dealDamage = ({ attacker, attacked, damage, distance }) => S.fromEither(attacked)(S.pipeK([
+const attack = ({ attacker, attacked, damage, distance }) => S.fromEither(attacked)(S.pipeK([
   () => !canAttack(attacker) ? S.Left('Attacker cannot attack') : S.Right(attacked),
   attacked => attacker === attacked ? S.Left('Character cannot attack self') : S.Right(attacked),
   () => S.Right(S.sub(getCharacterLevel(attacker))(getCharacterLevel(attacked))),
@@ -181,7 +181,7 @@ module.exports = {
   getCharacterHealth,
   isCharacterDead,
   isCharacterAlive,
-  dealDamage,
+  attack,
   heal,
   joinFaction,
   charIsInFaction,

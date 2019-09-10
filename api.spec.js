@@ -1,6 +1,6 @@
 /* globals expect, it, test, describe */
 
-const { getCharacterHealth, getCharacterLevel, isCharacterDead, isCharacterAlive, dealDamage, heal, joinFaction, charIsInFaction, leaveFaction } = require('./src/api')
+const { getCharacterHealth, getCharacterLevel, isCharacterDead, isCharacterAlive, attack, heal, joinFaction, charIsInFaction, leaveFaction } = require('./src/api')
 const { MELEE_FIGHTER, RANGED_FIGHTER } = require('./src/core')
 const createCharacter = require('./src/createCharacter')
 const createProp = require('./src/createProp')
@@ -74,48 +74,48 @@ describe('Character', () => {
     test('to enemies', () => {
       const char = createCharacter.default()
       const enemy = createCharacter.default()
-      const damagedEnemy = dealDamage({ attacker: char, attacked: enemy })
+      const damagedEnemy = attack({ attacker: char, attacked: enemy })
       expect(getCharacterHealth(damagedEnemy)).toEqual(999)
     })
     test('but not self', () => {
       const char = createCharacter.default()
-      const damagedChar = dealDamage({ attacker: char, attacked: char })
+      const damagedChar = attack({ attacker: char, attacked: char })
       expect(getCharacterHealth(damagedChar)).toEqual(getCharacterHealth(char))
     })
     test('but not to allies', () => {
       const char = joinFaction(createCharacter.default(), 'Lannister')
       const ally = joinFaction(createCharacter.default(), 'Lannister')
       const enemy = joinFaction(createCharacter.default(), 'Tyrell')
-      const undamagedAlly = dealDamage({ attacker: char, attacked: ally })
-      const damagedEnemy = dealDamage({ attacker: char, attacked: enemy })
+      const undamagedAlly = attack({ attacker: char, attacked: ally })
+      const damagedEnemy = attack({ attacker: char, attacked: enemy })
       expect(getCharacterHealth(undamagedAlly)).toEqual(1000)
       expect(getCharacterHealth(damagedEnemy)).toEqual(999)
     })
     test('health becomes 0 if damage is greater than health', () => {
       const char = createCharacter.default()
       const enemy = createCharacter.withHealth(1)
-      const deadEnemy = dealDamage({ attacker: char, attacked: enemy })
-      const deaderEnemy = dealDamage({ attacker: char, attacked: deadEnemy })
+      const deadEnemy = attack({ attacker: char, attacked: enemy })
+      const deaderEnemy = attack({ attacker: char, attacked: deadEnemy })
       expect(getCharacterHealth(deadEnemy)).toEqual(0)
       expect(getCharacterHealth(deaderEnemy)).toEqual(0)
     })
     it('dies when health is 0', () => {
       const char = createCharacter.default()
       const enemy = createCharacter.withHealth(1)
-      const deadEnemy = dealDamage({ attacker: char, attacked: enemy })
+      const deadEnemy = attack({ attacker: char, attacked: enemy })
       expect(isCharacterDead(deadEnemy)).toEqual(true)
     })
     describe('depending on level', () => {
       test('if target is 5 or more levels above, the damage applied will be reduced by 50%', () => {
         const char = createCharacter.default()
         const highLevelEnemy = createCharacter.withLevel(getCharacterLevel(char) + 5)
-        const damagedEnemy = dealDamage({ attacker: char, attacked: highLevelEnemy, damage: 100 })
+        const damagedEnemy = attack({ attacker: char, attacked: highLevelEnemy, damage: 100 })
         expect(getCharacterHealth(damagedEnemy)).toEqual(950)
       })
       test('if target is 5 or more levels below, the damage applied will be boosted by 50%', () => {
         const char = createCharacter.withLevel(6)
         const lowLevelEnemy = createCharacter.default()
-        const damagedEnemy = dealDamage({ attacker: char, attacked: lowLevelEnemy, damage: 100 })
+        const damagedEnemy = attack({ attacker: char, attacked: lowLevelEnemy, damage: 100 })
         expect(getCharacterHealth(damagedEnemy)).toEqual(850)
       })
     })
@@ -123,17 +123,17 @@ describe('Character', () => {
       test('if the player is a melee fighter, their range is 2 meters', () => {
         const meleeFighter = createCharacter.withClass(MELEE_FIGHTER)
         const enemy = createCharacter.default()
-        const damagedEnemyInRange = dealDamage({ attacker: meleeFighter, attacked: enemy, distance: 2 })
+        const damagedEnemyInRange = attack({ attacker: meleeFighter, attacked: enemy, distance: 2 })
         expect(getCharacterHealth(damagedEnemyInRange)).toEqual(999)
-        const undamageEnemyOutOfRange = dealDamage({ attacker: meleeFighter, attacked: enemy, distance: 3 })
+        const undamageEnemyOutOfRange = attack({ attacker: meleeFighter, attacked: enemy, distance: 3 })
         expect(getCharacterHealth(undamageEnemyOutOfRange)).toEqual(1000)
       })
       test('if the player is a ranged fighter, their range is 20 meters', () => {
         const rangedFighter = createCharacter.withClass(RANGED_FIGHTER)
         const enemy = createCharacter.default()
-        const damagedEnemyInRange = dealDamage({ attacker: rangedFighter, attacked: enemy, distance: 20 })
+        const damagedEnemyInRange = attack({ attacker: rangedFighter, attacked: enemy, distance: 20 })
         expect(getCharacterHealth(damagedEnemyInRange)).toEqual(999)
-        const undamageEnemyOutOfRange = dealDamage({ attacker: rangedFighter, attacked: enemy, distance: 21 })
+        const undamageEnemyOutOfRange = attack({ attacker: rangedFighter, attacked: enemy, distance: 21 })
         expect(getCharacterHealth(undamageEnemyOutOfRange)).toEqual(1000)
       })
     })
@@ -141,14 +141,14 @@ describe('Character', () => {
       it('can attack a prop', () => {
         const char = createCharacter.default()
         const house = createProp.withHealth(2000)
-        const damagedHouse = dealDamage({ attacker: char, attacked: house })
+        const damagedHouse = attack({ attacker: char, attacked: house })
         expect(getCharacterHealth(damagedHouse)).toEqual(1999)
       })
       test('if it has health', () => {
         const char = createCharacter.default()
         const destroyedHouse = createProp.destroyed()
         expect(getCharacterHealth(destroyedHouse)).toEqual(0)
-        const stillDestroyedHouse = dealDamage({ attacker: char, attacked: destroyedHouse })
+        const stillDestroyedHouse = attack({ attacker: char, attacked: destroyedHouse })
         expect(getCharacterHealth(stillDestroyedHouse)).toEqual(getCharacterHealth(destroyedHouse))
       })
     })
@@ -206,7 +206,7 @@ describe('Props', () => {
   it('cannot deal damage', () => {
     const prop = createProp.default()
     const character = createCharacter.default()
-    expect(getCharacterHealth(dealDamage({
+    expect(getCharacterHealth(attack({
       attacker: prop,
       attacked: character
     }))).toEqual(getCharacterHealth(character))
