@@ -9,7 +9,8 @@ const createCharacter = () => ({
   level: START_LEVEL,
   class: classes[Math.round(Math.random() * (classes.length - 1))],
   factions: {},
-  canAttack: true
+  canAttack: true,
+  canBeHealed: true
 })
 
 const createDeadCharacter = () => creatCharacterWithHealth(0)

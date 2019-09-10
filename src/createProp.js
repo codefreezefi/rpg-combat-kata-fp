@@ -6,7 +6,8 @@ const {
 const createProp = () => ({
   health: DEFAULT_PROP_HEALTH,
   level: START_LEVEL,
-  canAttack: false
+  canAttack: false,
+  canBeHealed: false
 })
 
 const createDestroyedProp = () => creatPropWithHealth(0)

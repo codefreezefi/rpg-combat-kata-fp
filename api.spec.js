@@ -193,7 +193,12 @@ describe('Character', () => {
       expect(getCharacterHealth(healCharacter(healCharacter(char2)))).toEqual(1000)
     })
 
-    test.todo('but not props')
+    test('but not props', () => {
+      const destroyedHouse = createProp.withHealth(100)
+      expect(getCharacterHealth(destroyedHouse)).toEqual(100)
+      const stillDestroyedHouse = healCharacter(destroyedHouse)
+      expect(getCharacterHealth(stillDestroyedHouse)).toEqual(getCharacterHealth(destroyedHouse))
+    })
   })
 })
 
