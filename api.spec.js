@@ -142,6 +142,7 @@ describe('Character', () => {
         const char = createCharacter.default()
         const house = createProp.withHealth(2000)
         const damagedHouse = dealDamage({ attacker: char, attacked: house })
+        // expect(getCharacterHealth(damagedHouse)).toEqual(1999)
         expect(getCharacterHealth(damagedHouse)).toBeLessThan(getCharacterHealth(house))
       })
       test('if it has health', () => {

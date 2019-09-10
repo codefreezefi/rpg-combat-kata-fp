@@ -132,7 +132,10 @@ const healCharacter = (character, healer) => S.fromEither(character)(S.pipeK([
   character => !canBeHealed(character) ? S.Left('Character cannot be healed') : S.Right(character),
   character => (healer || character) === character || isAlly(character)(healer) ? S.Right(character) : S.Left('Character can only heal self or allies'),
   character => isCharacterAlive(character) && !isHealed(character) ? S.Right(character) : S.Left('Character cannot be healed'),
-  character => S.Right(calculateNewHealth(getCharacterHealth(character))(-1)),
+  character => S.Right(S.pipe([
+    getCharacterHealth,
+    S.add(1)
+  ])(character)),
   newHealth => S.Right(update({ health: newHealth })(character))
 ])(S.Right(character)))
 
