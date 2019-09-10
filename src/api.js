@@ -4,6 +4,7 @@ const {
   RANGED_FIGHTER
 } = require('./core')
 const S = require('sanctuary')
+const $ = require('sanctuary-def')
 
 // -- Internal Helpers --
 
@@ -131,11 +132,11 @@ const healCharacter = (character, healer) => S.fromEither(character)(S.pipeK([
  * @param faction string
  * @returns object
  */
-const joinFaction = (character, faction) => S.pipe([
-  S.prop('factions'),
-  S.insert(faction)(true),
-  newFactions => update({ factions: newFactions })(character)
-])(character)
+const joinFaction = (character, faction) => S.fromEither(character)(S.pipeK([
+  character => S.maybeToEither('Character cannot belong to factions')(S.get(S.is($.StrMap($.Boolean)))('factions')(character)),
+  factions => S.Right(S.insert(faction)(true)(factions)),
+  newFactions => S.Right(update({ factions: newFactions })(character))
+])(S.Right(character)))
 
 /**
  * @param character object
@@ -153,12 +154,11 @@ const leaveFaction = (character, faction) => S.pipe([
  * @param faction string
  * @returns boolean
  */
-const charIsInFaction = (character, faction) => S.pipe([
-  S.prop('factions'),
-  S.keys,
-  S.find(S.equals(faction)),
-  S.ifElse(S.isJust)(() => true)(() => false)
-])(character)
+const charIsInFaction = (character, faction) => S.fromEither(false)(S.pipeK([
+  character => S.maybeToEither('Character cannot belong to factions')(S.get(S.is($.StrMap($.Boolean)))('factions')(character)),
+  factions => S.Right(S.keys(factions)),
+  factionNames => S.ifElse(() => S.isNothing(S.find(S.equals(faction))(factionNames)))(() => S.Left('Not in faction'))(() => S.Right(true))(factionNames)
+])(S.Right(character)))
 
 module.exports = {
   getCharacterLevel,

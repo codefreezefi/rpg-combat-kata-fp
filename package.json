@@ -17,7 +17,8 @@
     "standard": "^14.1.0"
   },
   "dependencies": {
-    "sanctuary": "^2.0.0"
+    "sanctuary": "^2.0.0",
+    "sanctuary-def": "^0.20.0"
   },
   "lint-staged": {
     "*.js": [

@@ -40,26 +40,26 @@ describe('Character', () => {
   })
 
   describe('may belong to factions and can', () => {
-    test('join one', () => {
+    test('join one faction', () => {
       const char = createCharacter.default()
       const charInLannister = joinFaction(char, 'Lannister')
       expect(charIsInFaction(charInLannister, 'Lannister')).toEqual(true)
       expect(charIsInFaction(charInLannister, 'Tyrell')).toEqual(false)
     })
-    test('or more factions', () => {
+    test('or join more factions', () => {
       const char = createCharacter.default()
       const charInLannister = joinFaction(char, 'Lannister')
       const charInLannisterAndTyrell = joinFaction(charInLannister, 'Tyrell')
       expect(charIsInFaction(charInLannisterAndTyrell, 'Lannister')).toEqual(true)
       expect(charIsInFaction(charInLannisterAndTyrell, 'Tyrell')).toEqual(true)
     })
-    test('leave one', () => {
+    test('leave one faction', () => {
       const char = createCharacter.default()
       const charInLannister = joinFaction(char, 'Lannister')
       const charLeftLannister = leaveFaction(charInLannister, 'Lannister')
       expect(charIsInFaction(charLeftLannister, 'Lannister')).toEqual(false)
     })
-    test('or more factions', () => {
+    test('or leave more factions', () => {
       const char = createCharacter.default()
       const charInLannister = joinFaction(char, 'Lannister')
       const charInLannisterAndTyrell = joinFaction(charInLannister, 'Tyrell')
@@ -195,6 +195,11 @@ describe('Props', () => {
       attacked: character
     }))).toEqual(getCharacterHealth(character))
   })
-  it.todo('cannot belong to factions')
+  it('cannot belong to factions', () => {
+    const prop = createProp.default()
+    const propInLannister = joinFaction(prop, 'Lannister')
+    expect(charIsInFaction(propInLannister, 'Lannister')).toEqual(false)
+    expect(charIsInFaction(propInLannister, 'Tyrell')).toEqual(false)
+  })
   it.todo('can have higher start health (e.g. a house with 2000 health)')
 })
