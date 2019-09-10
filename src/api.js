@@ -82,13 +82,13 @@ const getLevel = getProp('level')
  * @param char
  * @return boolean
  */
-const isCharacterDead = char => !isCharacterAlive(char)
+const isDead = char => !isAlive(char)
 
 /**
  * @param char
  * @return boolean
  */
-const isCharacterAlive = char =>
+const isAlive = char =>
   S.pipe([
     getProp('health'),
     health => health > 0
@@ -136,7 +136,7 @@ const attack = ({ attacker, attacked, damage, distance }) => S.fromEither(attack
 const heal = ({ character, healer }) => S.fromEither(character)(S.pipeK([
   character => !canBeHealed(character) ? S.Left('Character cannot be healed') : S.Right(character),
   character => (healer || character) === character || isAlly(character)(healer) ? S.Right(character) : S.Left('Character can only heal self or allies'),
-  character => isCharacterAlive(character) && !isHealed(character) ? S.Right(character) : S.Left('Character cannot be healed'),
+  character => isAlive(character) && !isHealed(character) ? S.Right(character) : S.Left('Character cannot be healed'),
   character => S.Right(S.pipe([
     getHealth,
     S.add(1)
@@ -179,8 +179,8 @@ const charIsInFaction = (character, faction) => S.fromEither(false)(S.pipeK([
 module.exports = {
   getLevel,
   getHealth,
-  isCharacterDead,
-  isCharacterAlive,
+  isDead,
+  isAlive,
   attack,
   heal,
   joinFaction,

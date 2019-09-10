@@ -1,6 +1,6 @@
 /* globals expect, it, test, describe */
 
-const { getHealth, getLevel, isCharacterDead, isCharacterAlive, attack, heal, joinFaction, charIsInFaction, leaveFaction } = require('./src/api')
+const { getHealth, getLevel, isDead, isAlive, attack, heal, joinFaction, charIsInFaction, leaveFaction } = require('./src/api')
 const { MELEE_FIGHTER, RANGED_FIGHTER } = require('./src/core')
 const createCharacter = require('./src/createCharacter')
 const createProp = require('./src/createProp')
@@ -22,19 +22,19 @@ describe('Character', () => {
     test('dead', () => {
       const char = createCharacter.dead()
       expect(
-        isCharacterDead(char)
+        isDead(char)
       ).toEqual(true)
       expect(
-        isCharacterAlive(char)
+        isAlive(char)
       ).toEqual(false)
     })
     test('or alive', () => {
       const char = createCharacter.default()
       expect(
-        isCharacterAlive(char)
+        isAlive(char)
       ).toEqual(true)
       expect(
-        isCharacterDead(char)
+        isDead(char)
       ).toEqual(false)
     })
   })
@@ -103,7 +103,7 @@ describe('Character', () => {
       const char = createCharacter.default()
       const enemy = createCharacter.withHealth(1)
       const deadEnemy = attack({ attacker: char, attacked: enemy })
-      expect(isCharacterDead(deadEnemy)).toEqual(true)
+      expect(isDead(deadEnemy)).toEqual(true)
     })
     describe('depending on level', () => {
       test('if target is 5 or more levels above, the damage applied will be reduced by 50%', () => {
@@ -180,7 +180,7 @@ describe('Character', () => {
     test('but not if it is dead', () => {
       const deadChar = createCharacter.dead()
       const stillDead = heal({ character: deadChar })
-      expect(isCharacterDead(stillDead)).toEqual(true)
+      expect(isDead(stillDead)).toEqual(true)
     })
 
     test('and not over 1000', () => {
