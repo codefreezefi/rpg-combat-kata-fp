@@ -1,6 +1,6 @@
 /* globals expect, it, test, describe */
 
-const { getHealth, getLevel, isDead, isAlive, attack, heal, joinFaction, charIsInFaction, leaveFaction } = require('./src/api')
+const { getHealth, getLevel, isDead, isAlive, attack, heal, joinFaction, isInFaction, leaveFaction } = require('./src/api')
 const { MELEE_FIGHTER, RANGED_FIGHTER } = require('./src/core')
 const createCharacter = require('./src/createCharacter')
 const createProp = require('./src/createProp')
@@ -43,21 +43,21 @@ describe('Character', () => {
     test('join one faction', () => {
       const char = createCharacter.default()
       const charInLannister = joinFaction(char, 'Lannister')
-      expect(charIsInFaction(charInLannister, 'Lannister')).toEqual(true)
-      expect(charIsInFaction(charInLannister, 'Tyrell')).toEqual(false)
+      expect(isInFaction(charInLannister, 'Lannister')).toEqual(true)
+      expect(isInFaction(charInLannister, 'Tyrell')).toEqual(false)
     })
     test('or join more factions', () => {
       const char = createCharacter.default()
       const charInLannister = joinFaction(char, 'Lannister')
       const charInLannisterAndTyrell = joinFaction(charInLannister, 'Tyrell')
-      expect(charIsInFaction(charInLannisterAndTyrell, 'Lannister')).toEqual(true)
-      expect(charIsInFaction(charInLannisterAndTyrell, 'Tyrell')).toEqual(true)
+      expect(isInFaction(charInLannisterAndTyrell, 'Lannister')).toEqual(true)
+      expect(isInFaction(charInLannisterAndTyrell, 'Tyrell')).toEqual(true)
     })
     test('leave one faction', () => {
       const char = createCharacter.default()
       const charInLannister = joinFaction(char, 'Lannister')
       const charLeftLannister = leaveFaction(charInLannister, 'Lannister')
-      expect(charIsInFaction(charLeftLannister, 'Lannister')).toEqual(false)
+      expect(isInFaction(charLeftLannister, 'Lannister')).toEqual(false)
     })
     test('or leave more factions', () => {
       const char = createCharacter.default()
@@ -65,8 +65,8 @@ describe('Character', () => {
       const charInLannisterAndTyrell = joinFaction(charInLannister, 'Tyrell')
       const charLeftLannister = leaveFaction(charInLannisterAndTyrell, 'Lannister')
       const charLeftLannisterAndTyrell = leaveFaction(charLeftLannister, 'Tyrell')
-      expect(charIsInFaction(charLeftLannisterAndTyrell, 'Lannister')).toEqual(false)
-      expect(charIsInFaction(charLeftLannisterAndTyrell, 'Tyrell')).toEqual(false)
+      expect(isInFaction(charLeftLannisterAndTyrell, 'Lannister')).toEqual(false)
+      expect(isInFaction(charLeftLannisterAndTyrell, 'Tyrell')).toEqual(false)
     })
   })
 
@@ -214,8 +214,8 @@ describe('Props', () => {
   it('cannot belong to factions', () => {
     const prop = createProp.default()
     const propInLannister = joinFaction(prop, 'Lannister')
-    expect(charIsInFaction(propInLannister, 'Lannister')).toEqual(false)
-    expect(charIsInFaction(propInLannister, 'Tyrell')).toEqual(false)
+    expect(isInFaction(propInLannister, 'Lannister')).toEqual(false)
+    expect(isInFaction(propInLannister, 'Tyrell')).toEqual(false)
   })
   it('can have higher start health (e.g. a house with 2000 health)', () => {
     const char = createCharacter.withHealth(2000)

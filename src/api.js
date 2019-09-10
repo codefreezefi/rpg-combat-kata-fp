@@ -171,7 +171,7 @@ const leaveFaction = (character, faction) => S.pipe([
  * @param faction string
  * @returns boolean
  */
-const charIsInFaction = (character, faction) => S.fromEither(false)(S.pipeK([
+const isInFaction = (character, faction) => S.fromEither(false)(S.pipeK([
   character => S.Right(getFactions(character)),
   factionNames => S.ifElse(() => S.isNothing(S.find(S.equals(faction))(factionNames)))(() => S.Left('Not in faction'))(() => S.Right(true))(factionNames)
 ])(S.Right(character)))
@@ -184,6 +184,6 @@ module.exports = {
   attack,
   heal,
   joinFaction,
-  charIsInFaction,
+  isInFaction,
   leaveFaction
 }
