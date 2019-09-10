@@ -1,5 +1,7 @@
 # RPG Combat Kata FP
 
+[![GitHub Actions](https://github.com/codefreezefi/rpg-combat-kata-fp/workflows/Test/badge.svg)](https://github.com/codefreezefi/rpg-combat-kata-fp/actions)
+
 The [RPG Combat Kata](https://de.slideshare.net/DanielOjedaLoisel/rpg-combat-kata) implemented using [Sanctuary.js](https://sanctuary.js.org/).
 
 The principles for this implementation were:

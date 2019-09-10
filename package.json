@@ -1,15 +1,14 @@
 {
-  "name": "rpg-kata-fp",
+  "name": "@codefreezefi/rpg-combat-kata-fp",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "The RPG Combat Kata implemented using FP",
   "scripts": {
     "test": "jest",
     "lint:fix": "standard --fix"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["kata", "fp"],
+  "author": "The CodeFreeze Collaborators",
+  "license": "MIT",
   "devDependencies": {
     "husky": "^3.0.5",
     "jest": "^24.9.0",
