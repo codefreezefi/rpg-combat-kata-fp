@@ -144,7 +144,13 @@ describe('Character', () => {
         const damagedHouse = dealDamage({ attacker: char, attacked: house })
         expect(getCharacterHealth(damagedHouse)).toBeLessThan(getCharacterHealth(house))
       })
-      test.todo('if it has health')
+      test('if it has health', () => {
+        const char = createCharacter.default()
+        const destroyedHouse = createProp.destroyed()
+        expect(getCharacterHealth(destroyedHouse)).toEqual(0)
+        const stillDestroyedHouse = dealDamage({ attacker: char, attacked: destroyedHouse })
+        expect(getCharacterHealth(stillDestroyedHouse)).toEqual(getCharacterHealth(destroyedHouse))
+      })
     })
   })
 
