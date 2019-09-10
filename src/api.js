@@ -8,8 +8,6 @@ const $ = require('sanctuary-def')
 
 // -- Internal Helpers --
 
-const getProp = prop => char => S.prop(prop)(char)
-
 const isFullHealth = health => health === DEFAULT_AND_MAX_CHARACTER_HEALTH
 
 const isClass = className => char => S.prop('class')(char) === className
@@ -40,7 +38,7 @@ const isRangedFighter = isClass(RANGED_FIGHTER)
  * @returns boolean
  */
 const isHealed = S.pipe([
-  getProp('health'),
+  S.prop('health'),
   isFullHealth
 ])
 
@@ -49,7 +47,7 @@ const isHealed = S.pipe([
  * @returns boolean
  */
 const canAttack = S.pipe([
-  getProp('canAttack'),
+  S.prop('canAttack'),
   S.equals(true)
 ])
 
@@ -58,7 +56,7 @@ const canAttack = S.pipe([
  * @returns boolean
  */
 const canBeHealed = S.pipe([
-  getProp('canBeHealed'),
+  S.prop('canBeHealed'),
   S.equals(true)
 ])
 
@@ -70,13 +68,13 @@ const canBeHealed = S.pipe([
  * @param char
  * @return int
  */
-const getHealth = getProp('health')
+const getHealth = S.prop('health')
 
 /**
  * @param char
  * @return int
  */
-const getLevel = getProp('level')
+const getLevel = S.prop('level')
 
 /**
  * @param char
@@ -90,7 +88,7 @@ const isDead = char => !isAlive(char)
  */
 const isAlive = char =>
   S.pipe([
-    getProp('health'),
+    S.prop('health'),
     health => health > 0
   ])(char)
 
