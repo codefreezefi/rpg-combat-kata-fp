@@ -62,8 +62,6 @@ const canBeHealed = S.pipe([
   S.equals(true)
 ])
 
-const calculateNewHealth = characterHealth => damage => Math.min(DEFAULT_AND_MAX_CHARACTER_HEALTH, Math.max(characterHealth - damage, 0))
-
 // -- PUBLIC API --
 
 // Queries
@@ -119,7 +117,11 @@ const dealDamage = ({ attacker, attacked, damage, distance }) => S.fromEither(at
     mod => S.ifElse(() => isAlly(attacker)(attacked))(() => 0)(() => mod)(mod)
   ])(1)),
   damageModifier => S.Right((damage || 1) * damageModifier),
-  realDamage => S.Right(calculateNewHealth(getCharacterHealth(attacked))(realDamage)),
+  realDamage => S.Right(S.pipe([
+    getCharacterHealth,
+    S.sub(realDamage),
+    S.max(0)
+  ])(attacked)),
   newHealth => S.Right(update({ health: newHealth })(attacked))
 ])(S.Right(attacked)))
 
