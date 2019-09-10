@@ -3,6 +3,8 @@
  */
 const DEFAULT_AND_MAX_CHARACTER_HEALTH = 1000
 
+const DEFAULT_PROP_HEALTH = 1000
+
 /**
  * Starting level of a character
  */
@@ -18,6 +20,7 @@ const classes = [
 
 module.exports = {
   DEFAULT_AND_MAX_CHARACTER_HEALTH,
+  DEFAULT_PROP_HEALTH,
   START_LEVEL,
   classes,
   MELEE_FIGHTER,

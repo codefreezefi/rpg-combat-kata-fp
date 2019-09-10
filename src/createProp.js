@@ -1,9 +1,11 @@
 const {
-  DEFAULT_AND_MAX_CHARACTER_HEALTH
+  DEFAULT_PROP_HEALTH,
+  START_LEVEL
 } = require('./core')
 
 const createProp = () => ({
-  health: DEFAULT_AND_MAX_CHARACTER_HEALTH,
+  health: DEFAULT_PROP_HEALTH,
+  level: START_LEVEL,
   canAttack: false
 })
 

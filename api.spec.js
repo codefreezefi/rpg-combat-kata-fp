@@ -82,7 +82,7 @@ describe('Character', () => {
       const damagedChar = dealDamage({ attacker: char, attacked: char })
       expect(getCharacterHealth(damagedChar)).toEqual(getCharacterHealth(char))
     })
-    test('and not to allies', () => {
+    test('but not to allies', () => {
       const char = joinFaction(createCharacter.default(), 'Lannister')
       const ally = joinFaction(createCharacter.default(), 'Lannister')
       const enemy = joinFaction(createCharacter.default(), 'Tyrell')
@@ -138,7 +138,12 @@ describe('Character', () => {
       })
     })
     describe('to other things that are not characters (props)', () => {
-      it.todo('can attack a prop')
+      it('can attack a prop', () => {
+        const char = createCharacter.default()
+        const house = createProp.withHealth(2000)
+        const damagedHouse = dealDamage({ attacker: char, attacked: house })
+        expect(getCharacterHealth(damagedHouse)).toBeLessThan(getCharacterHealth(house))
+      })
       test.todo('if it has health')
     })
   })

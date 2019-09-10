@@ -19,15 +19,14 @@ const inList = list => item => S.pipe([
   S.ifElse(S.isJust)(() => true)(() => false)
 ])(list)
 
+const getCharacterFactions = char => S.fromEither([])(S.pipeK([
+  character => S.maybeToEither('Character cannot belong to factions')(S.get(S.is($.StrMap($.Boolean)))('factions')(character)),
+  factions => S.Right(S.keys(factions))
+])(S.Right(char)))
+
 const isAlly = char1 => char2 => {
-  const char1Factions = S.pipe([
-    S.prop('factions'),
-    S.keys
-  ])(char1)
-  const char2Factions = S.pipe([
-    S.prop('factions'),
-    S.keys
-  ])(char2)
+  const char1Factions = getCharacterFactions(char1)
+  const char2Factions = getCharacterFactions(char2)
   return S.pipe([
     S.any(inList(char2Factions))
   ])(char1Factions)
