@@ -15,7 +15,7 @@ const isClass = className => S.pipe([
 
 const inList = list => item => S.pipe([
   S.find(S.equals(item)),
-  S.ifElse(S.isJust)(() => true)(() => false)
+  S.isJust
 ])(list)
 
 const getFactions = char => S.fromEither([])(S.pipeK([
@@ -33,15 +33,6 @@ const isAlly = char1 => char2 => {
 
 const isMeleeFighter = isClass(MELEE_FIGHTER)
 const isRangedFighter = isClass(RANGED_FIGHTER)
-
-/**
- * @param char Object
- * @returns boolean
- */
-const canBeHealed = S.pipe([
-  S.prop('canBeHealed'),
-  S.equals(true)
-])
 
 // -- PUBLIC API --
 
@@ -120,8 +111,13 @@ const attack = ({ attacker, attacked, damage, distance }) => S.fromEither(attack
  * @returns character object
  */
 const heal = ({ character, healer }) => S.fromEither(character)(S.pipeK([
-  character => !canBeHealed(character) ? S.Left('Character cannot be healed') : S.Right(character),
-  character => (healer || character) === character || isAlly(character)(healer) ? S.Right(character) : S.Left('Character can only heal self or allies'),
+  S.ifElse(S.pipe([
+    S.prop('canBeHealed'),
+    S.equals(false)
+  ]))(() => S.Left('Character cannot be healed'))(S.Right),
+  S.ifElse(() => S.or((healer || character) === character)(isAlly(character)(healer)))(
+    S.Right
+  )(() => S.Left('Character can only heal self or allies')),
   S.ifElse(() => S.and(isAlive(character))(S.pipe([
     S.prop('health'),
     S.lt(DEFAULT_AND_MAX_CHARACTER_HEALTH)
@@ -130,7 +126,7 @@ const heal = ({ character, healer }) => S.fromEither(character)(S.pipeK([
     getHealth,
     S.add(1)
   ])(character)),
-  newHealth => S.Right(update({ health: newHealth })(character))
+  S.map(S.Right)(newHealth => update({ health: newHealth })(character))
 ])(S.Right(character)))
 
 /**
