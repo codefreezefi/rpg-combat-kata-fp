@@ -1,9 +1,9 @@
 const {
-  DEFAULT_AND_MAX_PROP_HEALTH
+  DEFAULT_AND_MAX_CHARACTER_HEALTH
 } = require('./core')
 
 const createProp = () => ({
-  health: DEFAULT_AND_MAX_PROP_HEALTH,
+  health: DEFAULT_AND_MAX_CHARACTER_HEALTH,
   canAttack: false
 })
 

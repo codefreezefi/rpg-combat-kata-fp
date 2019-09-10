@@ -15,7 +15,7 @@ const createCharacter = () => ({
 const createDeadCharacter = () => creatCharacterWithHealth(0)
 const creatCharacterWithHealth = health => ({
   ...createCharacter(),
-  health
+  health: Math.min(DEFAULT_AND_MAX_CHARACTER_HEALTH, health)
 })
 
 const creatCharacterWithLevel = level => ({

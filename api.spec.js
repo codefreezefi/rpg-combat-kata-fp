@@ -201,5 +201,14 @@ describe('Props', () => {
     expect(charIsInFaction(propInLannister, 'Lannister')).toEqual(false)
     expect(charIsInFaction(propInLannister, 'Tyrell')).toEqual(false)
   })
-  it.todo('can have higher start health (e.g. a house with 2000 health)')
+  it('can have higher start health (e.g. a house with 2000 health)', () => {
+    const char = createCharacter.withHealth(2000)
+    expect(
+      getCharacterHealth(char)
+    ).toEqual(1000)
+    const house = createProp.withHealth(2000)
+    expect(
+      getCharacterHealth(house)
+    ).toEqual(2000)
+  })
 })
