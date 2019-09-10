@@ -44,6 +44,15 @@ const isHealed = S.pipe([
   isFullHealth
 ])
 
+/**
+ * @param char Object
+ * @returns boolean
+ */
+const canAttack = S.pipe([
+  getCharacterProp('canAttack'),
+  S.equals(true)
+])
+
 const calculateNewHealth = characterHealth => damage => Math.min(DEFAULT_AND_MAX_CHARACTER_HEALTH, Math.max(characterHealth - damage, 0))
 
 // -- PUBLIC API --
@@ -90,6 +99,7 @@ const update = u => o => ({
  * @returns damaged attacker
  */
 const dealDamage = ({ attacker, attacked, damage, distance }) => S.fromEither(attacked)(S.pipeK([
+  () => !canAttack(attacker) ? S.Left('Attacker cannot attack') : S.Right(attacked),
   attacked => attacker === attacked ? S.Left('Character cannot attack self') : S.Right(attacked),
   () => S.Right(S.sub(getCharacterLevel(attacker))(getCharacterLevel(attacked))),
   levelDiff => S.Right(S.pipe([

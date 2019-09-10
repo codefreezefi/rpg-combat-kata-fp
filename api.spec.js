@@ -3,6 +3,7 @@
 const { getCharacterHealth, getCharacterLevel, isCharacterDead, isCharacterAlive, dealDamage, healCharacter, joinFaction, charIsInFaction, leaveFaction } = require('./src/api')
 const { MELEE_FIGHTER, RANGED_FIGHTER } = require('./src/core')
 const createCharacter = require('./src/createCharacter')
+const createProp = require('./src/createProp')
 
 describe('Character', () => {
   it('has health, starting at 1000', () => {
@@ -186,7 +187,14 @@ describe('Character', () => {
 })
 
 describe('Props', () => {
-  it.todo('cannot deal damage')
+  it('cannot deal damage', () => {
+    const prop = createProp.default()
+    const character = createCharacter.default()
+    expect(getCharacterHealth(dealDamage({
+      attacker: prop,
+      attacked: character
+    }))).toEqual(getCharacterHealth(character))
+  })
   it.todo('cannot belong to factions')
   it.todo('can have higher start health (e.g. a house with 2000 health)')
 })
