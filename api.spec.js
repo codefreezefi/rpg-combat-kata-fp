@@ -75,7 +75,7 @@ describe('Character', () => {
       const char = createCharacter.default()
       const enemy = createCharacter.default()
       const damagedEnemy = dealDamage({ attacker: char, attacked: enemy })
-      expect(getCharacterHealth(damagedEnemy)).toBeLessThan(getCharacterHealth(enemy))
+      expect(getCharacterHealth(damagedEnemy)).toEqual(999)
     })
     test('but not self', () => {
       const char = createCharacter.default()
@@ -88,8 +88,8 @@ describe('Character', () => {
       const enemy = joinFaction(createCharacter.default(), 'Tyrell')
       const undamagedAlly = dealDamage({ attacker: char, attacked: ally })
       const damagedEnemy = dealDamage({ attacker: char, attacked: enemy })
-      expect(getCharacterHealth(undamagedAlly)).toEqual(getCharacterHealth(ally))
-      expect(getCharacterHealth(damagedEnemy)).toBeLessThan(getCharacterHealth(enemy))
+      expect(getCharacterHealth(undamagedAlly)).toEqual(1000)
+      expect(getCharacterHealth(damagedEnemy)).toEqual(999)
     })
     test('health becomes 0 if damage is greater than health', () => {
       const char = createCharacter.default()
@@ -124,17 +124,17 @@ describe('Character', () => {
         const meleeFighter = createCharacter.withClass(MELEE_FIGHTER)
         const enemy = createCharacter.default()
         const damagedEnemyInRange = dealDamage({ attacker: meleeFighter, attacked: enemy, distance: 2 })
-        expect(getCharacterHealth(damagedEnemyInRange)).toBeLessThan(getCharacterHealth(enemy))
+        expect(getCharacterHealth(damagedEnemyInRange)).toEqual(999)
         const undamageEnemyOutOfRange = dealDamage({ attacker: meleeFighter, attacked: enemy, distance: 3 })
-        expect(getCharacterHealth(undamageEnemyOutOfRange)).toEqual(getCharacterHealth(enemy))
+        expect(getCharacterHealth(undamageEnemyOutOfRange)).toEqual(1000)
       })
       test('if the player is a ranged fighter, their range is 20 meters', () => {
         const rangedFighter = createCharacter.withClass(RANGED_FIGHTER)
         const enemy = createCharacter.default()
         const damagedEnemyInRange = dealDamage({ attacker: rangedFighter, attacked: enemy, distance: 20 })
-        expect(getCharacterHealth(damagedEnemyInRange)).toBeLessThan(getCharacterHealth(enemy))
+        expect(getCharacterHealth(damagedEnemyInRange)).toEqual(999)
         const undamageEnemyOutOfRange = dealDamage({ attacker: rangedFighter, attacked: enemy, distance: 21 })
-        expect(getCharacterHealth(undamageEnemyOutOfRange)).toEqual(getCharacterHealth(enemy))
+        expect(getCharacterHealth(undamageEnemyOutOfRange)).toEqual(1000)
       })
     })
     describe('to other things that are not characters (props)', () => {
@@ -142,8 +142,7 @@ describe('Character', () => {
         const char = createCharacter.default()
         const house = createProp.withHealth(2000)
         const damagedHouse = dealDamage({ attacker: char, attacked: house })
-        // expect(getCharacterHealth(damagedHouse)).toEqual(1999)
-        expect(getCharacterHealth(damagedHouse)).toBeLessThan(getCharacterHealth(house))
+        expect(getCharacterHealth(damagedHouse)).toEqual(1999)
       })
       test('if it has health', () => {
         const char = createCharacter.default()
@@ -160,14 +159,14 @@ describe('Character', () => {
       const char = createCharacter.withHealth(900)
       expect(getCharacterHealth(char)).toEqual(900)
       const healed = healCharacter(char)
-      expect(getCharacterHealth(healed)).toBeGreaterThan(900)
+      expect(getCharacterHealth(healed)).toEqual(901)
     })
 
     test('and allies', () => {
       const char = joinFaction(createCharacter.default(), 'Lannister')
       const ally = joinFaction(createCharacter.withHealth(900), 'Lannister')
       const healed = healCharacter(ally, char)
-      expect(getCharacterHealth(healed)).toBeGreaterThan(900)
+      expect(getCharacterHealth(healed)).toEqual(901)
     })
 
     test('but not enemies', () => {
