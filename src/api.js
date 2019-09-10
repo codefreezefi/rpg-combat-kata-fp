@@ -102,8 +102,11 @@ const update = u => o => ({
 // Commands
 
 /**
- * @param args object
- * @returns damaged attacker
+ * @param attacker object
+ * @param attacked object
+ * @param damage integer
+ * @param distance integer
+ * @returns object
  */
 const dealDamage = ({ attacker, attacked, damage, distance }) => S.fromEither(attacked)(S.pipeK([
   () => !canAttack(attacker) ? S.Left('Attacker cannot attack') : S.Right(attacked),
@@ -130,7 +133,7 @@ const dealDamage = ({ attacker, attacked, damage, distance }) => S.fromEither(at
  * @param healer object
  * @returns character object
  */
-const healCharacter = (character, healer) => S.fromEither(character)(S.pipeK([
+const heal = ({ character, healer }) => S.fromEither(character)(S.pipeK([
   character => !canBeHealed(character) ? S.Left('Character cannot be healed') : S.Right(character),
   character => (healer || character) === character || isAlly(character)(healer) ? S.Right(character) : S.Left('Character can only heal self or allies'),
   character => isCharacterAlive(character) && !isHealed(character) ? S.Right(character) : S.Left('Character cannot be healed'),
@@ -179,7 +182,7 @@ module.exports = {
   isCharacterDead,
   isCharacterAlive,
   dealDamage,
-  healCharacter,
+  heal,
   joinFaction,
   charIsInFaction,
   leaveFaction

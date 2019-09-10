@@ -1,6 +1,6 @@
 /* globals expect, it, test, describe */
 
-const { getCharacterHealth, getCharacterLevel, isCharacterDead, isCharacterAlive, dealDamage, healCharacter, joinFaction, charIsInFaction, leaveFaction } = require('./src/api')
+const { getCharacterHealth, getCharacterLevel, isCharacterDead, isCharacterAlive, dealDamage, heal, joinFaction, charIsInFaction, leaveFaction } = require('./src/api')
 const { MELEE_FIGHTER, RANGED_FIGHTER } = require('./src/core')
 const createCharacter = require('./src/createCharacter')
 const createProp = require('./src/createProp')
@@ -158,14 +158,14 @@ describe('Character', () => {
     test('themselves', () => {
       const char = createCharacter.withHealth(900)
       expect(getCharacterHealth(char)).toEqual(900)
-      const healed = healCharacter(char)
+      const healed = heal({ character: char })
       expect(getCharacterHealth(healed)).toEqual(901)
     })
 
     test('and allies', () => {
       const char = joinFaction(createCharacter.default(), 'Lannister')
       const ally = joinFaction(createCharacter.withHealth(900), 'Lannister')
-      const healed = healCharacter(ally, char)
+      const healed = heal({ character: ally, healer: char })
       expect(getCharacterHealth(healed)).toEqual(901)
     })
 
@@ -173,30 +173,30 @@ describe('Character', () => {
       const char = createCharacter.default()
       const enemy = createCharacter.withHealth(900)
       expect(getCharacterHealth(enemy)).toEqual(900)
-      const healed = healCharacter(enemy, char)
+      const healed = heal({ healer: char, character: enemy })
       expect(getCharacterHealth(healed)).toEqual(900)
     })
 
     test('but not if it is dead', () => {
       const deadChar = createCharacter.dead()
-      const stillDead = healCharacter(deadChar)
+      const stillDead = heal({ character: deadChar })
       expect(isCharacterDead(stillDead)).toEqual(true)
     })
 
     test('and not over 1000', () => {
       const char = createCharacter.default()
       expect(getCharacterHealth(char)).toEqual(1000)
-      const healed = healCharacter(char)
+      const healed = heal({ character: char })
       expect(getCharacterHealth(healed)).toEqual(1000)
 
       const char2 = createCharacter.withHealth(999)
-      expect(getCharacterHealth(healCharacter(healCharacter(char2)))).toEqual(1000)
+      expect(getCharacterHealth(heal({ character: heal({ character: char2 }) }))).toEqual(1000)
     })
 
     test('but not props', () => {
       const destroyedHouse = createProp.withHealth(100)
       expect(getCharacterHealth(destroyedHouse)).toEqual(100)
-      const stillDestroyedHouse = healCharacter(destroyedHouse)
+      const stillDestroyedHouse = heal({ character: destroyedHouse })
       expect(getCharacterHealth(stillDestroyedHouse)).toEqual(getCharacterHealth(destroyedHouse))
     })
   })
