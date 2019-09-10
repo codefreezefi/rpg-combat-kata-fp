@@ -8,8 +8,6 @@ const $ = require('sanctuary-def')
 
 // -- Internal Helpers --
 
-const isFullHealth = health => health === DEFAULT_AND_MAX_CHARACTER_HEALTH
-
 const isClass = className => char => S.prop('class')(char) === className
 
 const inList = list => item => S.pipe([
@@ -32,15 +30,6 @@ const isAlly = char1 => char2 => {
 
 const isMeleeFighter = isClass(MELEE_FIGHTER)
 const isRangedFighter = isClass(RANGED_FIGHTER)
-
-/**
- * @param char Object
- * @returns boolean
- */
-const isHealed = S.pipe([
-  S.prop('health'),
-  isFullHealth
-])
 
 /**
  * @param char Object
@@ -86,11 +75,10 @@ const isDead = char => !isAlive(char)
  * @param char
  * @return boolean
  */
-const isAlive = char =>
-  S.pipe([
-    S.prop('health'),
-    health => health > 0
-  ])(char)
+const isAlive = S.pipe([
+  S.prop('health'),
+  S.gt(0)
+])
 
 const update = u => o => ({
   ...o,
@@ -134,7 +122,10 @@ const attack = ({ attacker, attacked, damage, distance }) => S.fromEither(attack
 const heal = ({ character, healer }) => S.fromEither(character)(S.pipeK([
   character => !canBeHealed(character) ? S.Left('Character cannot be healed') : S.Right(character),
   character => (healer || character) === character || isAlly(character)(healer) ? S.Right(character) : S.Left('Character can only heal self or allies'),
-  character => isAlive(character) && !isHealed(character) ? S.Right(character) : S.Left('Character cannot be healed'),
+  S.ifElse(() => S.and(isAlive(character))(S.pipe([
+    S.prop('health'),
+    S.lt(DEFAULT_AND_MAX_CHARACTER_HEALTH)
+  ])(character)))(S.Right)(() => S.Left('Character cannot be healed')),
   character => S.Right(S.pipe([
     getHealth,
     S.add(1)
