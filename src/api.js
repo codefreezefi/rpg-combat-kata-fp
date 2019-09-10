@@ -8,7 +8,7 @@ const $ = require('sanctuary-def')
 
 // -- Internal Helpers --
 
-const getCharacterProp = prop => char => S.prop(prop)(char)
+const getProp = prop => char => S.prop(prop)(char)
 
 const isFullHealth = health => health === DEFAULT_AND_MAX_CHARACTER_HEALTH
 
@@ -19,14 +19,14 @@ const inList = list => item => S.pipe([
   S.ifElse(S.isJust)(() => true)(() => false)
 ])(list)
 
-const getCharacterFactions = char => S.fromEither([])(S.pipeK([
+const getFactions = char => S.fromEither([])(S.pipeK([
   character => S.maybeToEither('Character cannot belong to factions')(S.get(S.is($.StrMap($.Boolean)))('factions')(character)),
   factions => S.Right(S.keys(factions))
 ])(S.Right(char)))
 
 const isAlly = char1 => char2 => {
-  const char1Factions = getCharacterFactions(char1)
-  const char2Factions = getCharacterFactions(char2)
+  const char1Factions = getFactions(char1)
+  const char2Factions = getFactions(char2)
   return S.pipe([
     S.any(inList(char2Factions))
   ])(char1Factions)
@@ -40,7 +40,7 @@ const isRangedFighter = isClass(RANGED_FIGHTER)
  * @returns boolean
  */
 const isHealed = S.pipe([
-  getCharacterProp('health'),
+  getProp('health'),
   isFullHealth
 ])
 
@@ -49,7 +49,7 @@ const isHealed = S.pipe([
  * @returns boolean
  */
 const canAttack = S.pipe([
-  getCharacterProp('canAttack'),
+  getProp('canAttack'),
   S.equals(true)
 ])
 
@@ -58,7 +58,7 @@ const canAttack = S.pipe([
  * @returns boolean
  */
 const canBeHealed = S.pipe([
-  getCharacterProp('canBeHealed'),
+  getProp('canBeHealed'),
   S.equals(true)
 ])
 
@@ -70,13 +70,13 @@ const canBeHealed = S.pipe([
  * @param char
  * @return int
  */
-const getCharacterHealth = getCharacterProp('health')
+const getHealth = getProp('health')
 
 /**
  * @param char
  * @return int
  */
-const getCharacterLevel = getCharacterProp('level')
+const getLevel = getProp('level')
 
 /**
  * @param char
@@ -90,7 +90,7 @@ const isCharacterDead = char => !isCharacterAlive(char)
  */
 const isCharacterAlive = char =>
   S.pipe([
-    getCharacterProp('health'),
+    getProp('health'),
     health => health > 0
   ])(char)
 
@@ -111,7 +111,7 @@ const update = u => o => ({
 const attack = ({ attacker, attacked, damage, distance }) => S.fromEither(attacked)(S.pipeK([
   () => !canAttack(attacker) ? S.Left('Attacker cannot attack') : S.Right(attacked),
   attacked => attacker === attacked ? S.Left('Character cannot attack self') : S.Right(attacked),
-  () => S.Right(S.sub(getCharacterLevel(attacker))(getCharacterLevel(attacked))),
+  () => S.Right(S.sub(getLevel(attacker))(getLevel(attacked))),
   levelDiff => S.Right(S.pipe([
     mod => S.ifElse(() => levelDiff >= 5)(() => mod * 0.5)(() => mod)(mod),
     mod => S.ifElse(() => levelDiff <= -5)(() => mod * 1.5)(() => mod)(mod),
@@ -121,7 +121,7 @@ const attack = ({ attacker, attacked, damage, distance }) => S.fromEither(attack
   ])(1)),
   damageModifier => S.Right((damage || 1) * damageModifier),
   realDamage => S.Right(S.pipe([
-    getCharacterHealth,
+    getHealth,
     S.sub(realDamage),
     S.max(0)
   ])(attacked)),
@@ -138,7 +138,7 @@ const heal = ({ character, healer }) => S.fromEither(character)(S.pipeK([
   character => (healer || character) === character || isAlly(character)(healer) ? S.Right(character) : S.Left('Character can only heal self or allies'),
   character => isCharacterAlive(character) && !isHealed(character) ? S.Right(character) : S.Left('Character cannot be healed'),
   character => S.Right(S.pipe([
-    getCharacterHealth,
+    getHealth,
     S.add(1)
   ])(character)),
   newHealth => S.Right(update({ health: newHealth })(character))
@@ -172,13 +172,13 @@ const leaveFaction = (character, faction) => S.pipe([
  * @returns boolean
  */
 const charIsInFaction = (character, faction) => S.fromEither(false)(S.pipeK([
-  character => S.Right(getCharacterFactions(character)),
+  character => S.Right(getFactions(character)),
   factionNames => S.ifElse(() => S.isNothing(S.find(S.equals(faction))(factionNames)))(() => S.Left('Not in faction'))(() => S.Right(true))(factionNames)
 ])(S.Right(character)))
 
 module.exports = {
-  getCharacterLevel,
-  getCharacterHealth,
+  getLevel,
+  getHealth,
   isCharacterDead,
   isCharacterAlive,
   attack,
