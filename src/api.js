@@ -8,7 +8,10 @@ const $ = require('sanctuary-def')
 
 // -- Internal Helpers --
 
-const isClass = className => char => S.prop('class')(char) === className
+const isClass = className => S.pipe([
+  S.prop('class'),
+  S.equals(className)
+])
 
 const inList = list => item => S.pipe([
   S.find(S.equals(item)),
@@ -30,15 +33,6 @@ const isAlly = char1 => char2 => {
 
 const isMeleeFighter = isClass(MELEE_FIGHTER)
 const isRangedFighter = isClass(RANGED_FIGHTER)
-
-/**
- * @param char Object
- * @returns boolean
- */
-const canAttack = S.pipe([
-  S.prop('canAttack'),
-  S.equals(true)
-])
 
 /**
  * @param char Object
@@ -95,23 +89,29 @@ const update = u => o => ({
  * @returns object
  */
 const attack = ({ attacker, attacked, damage, distance }) => S.fromEither(attacked)(S.pipeK([
-  () => !canAttack(attacker) ? S.Left('Attacker cannot attack') : S.Right(attacked),
-  attacked => attacker === attacked ? S.Left('Character cannot attack self') : S.Right(attacked),
-  () => S.Right(S.sub(getLevel(attacker))(getLevel(attacked))),
-  levelDiff => S.Right(S.pipe([
-    mod => S.ifElse(() => levelDiff >= 5)(() => mod * 0.5)(() => mod)(mod),
-    mod => S.ifElse(() => levelDiff <= -5)(() => mod * 1.5)(() => mod)(mod),
-    mod => S.ifElse(() => isMeleeFighter(attacker) && distance > 2)(() => 0)(() => mod)(mod),
-    mod => S.ifElse(() => isRangedFighter(attacker) && distance > 20)(() => 0)(() => mod)(mod),
-    mod => S.ifElse(() => isAlly(attacker)(attacked))(() => 0)(() => mod)(mod)
-  ])(1)),
-  damageModifier => S.Right((damage || 1) * damageModifier),
+  S.ifElse(() => S.pipe([
+    S.prop('canAttack'),
+    S.equals(false)
+  ])(attacker))(() => S.Left('Attacker cannot attack'))(S.Right),
+  S.ifElse(() => attacker === attacked)(() => S.Left('Character cannot attack self'))(S.Right),
+  S.map(S.Right)(S.pipe([
+    getLevel,
+    S.sub(getLevel(attacker))
+  ])),
+  levelDiff => S.map(S.Right)(S.pipe([
+    S.ifElse(() => S.gte(5)(levelDiff))(S.mult(0.5))(S.mult(1)),
+    S.ifElse(() => S.lte(-5)(levelDiff))(S.mult(1.5))(S.mult(1)),
+    S.ifElse(() => S.and(isMeleeFighter(attacker))(S.gt(2)(distance || 1)))(S.mult(0))(S.mult(1)),
+    S.ifElse(() => S.and(isRangedFighter(attacker))(S.gt(20)(distance || 1)))(S.mult(0))(S.mult(1)),
+    S.ifElse(() => isAlly(attacker)(attacked))(S.mult(0))(S.mult(1))
+  ]))(1),
+  S.map(S.Right)(S.mult(damage || 1)),
   realDamage => S.Right(S.pipe([
     getHealth,
     S.sub(realDamage),
     S.max(0)
   ])(attacked)),
-  newHealth => S.Right(update({ health: newHealth })(attacked))
+  S.map(S.Right)(newHealth => update({ health: newHealth })(attacked))
 ])(S.Right(attacked)))
 
 /**
