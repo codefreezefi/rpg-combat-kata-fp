@@ -72,6 +72,35 @@ const update = u => o => ({
   ...u
 })
 
+// Attacking helpers
+
+const canBeAttackedBy = attacker => S.ifElse(() => S.pipe([
+  S.prop('canAttack'),
+  S.equals(false)
+])(attacker))(() => S.Left('Attacker cannot attack'))(S.Right)
+
+const isNotAttackingSelf = attacker => S.ifElse(attacked => attacker === attacked)(() => S.Left('Character cannot attack self'))(S.Right)
+
+const getLevelDiff = attacker => S.map(S.Right)(S.pipe([
+  getLevel,
+  S.sub(getLevel(attacker))
+]))
+
+const modifyIf = modify => cond => S.ifElse(cond)(modify)(S.mult(1))
+const zeroIf = cond => modifyIf(S.mult(0))(cond)
+
+const inRange = range => S.pipe([
+  S.lte(range)
+])
+
+// Sanctuary API wrappers
+
+const pipeKorElse = elseReturn => chainable => subject => S.fromEither(elseReturn)(S.pipeK(chainable)(S.Right(subject)))
+
+const mapRight = S.map(S.Right)
+
+const pipeRight = pipeAble => subject => mapRight(S.pipe(pipeAble))(subject)
+
 // Commands
 
 /**
@@ -79,33 +108,28 @@ const update = u => o => ({
  * @param attacked object
  * @param damage integer
  * @param distance integer
+ * @param damageModifier float
  * @returns object
  */
-const attack = ({ attacker, attacked, damage, distance }) => S.fromEither(attacked)(S.pipeK([
-  S.ifElse(() => S.pipe([
-    S.prop('canAttack'),
-    S.equals(false)
-  ])(attacker))(() => S.Left('Attacker cannot attack'))(S.Right),
-  S.ifElse(() => attacker === attacked)(() => S.Left('Character cannot attack self'))(S.Right),
-  S.map(S.Right)(S.pipe([
-    getLevel,
-    S.sub(getLevel(attacker))
-  ])),
-  levelDiff => S.map(S.Right)(S.pipe([
-    S.ifElse(() => S.gte(5)(levelDiff))(S.mult(0.5))(S.mult(1)),
-    S.ifElse(() => S.lte(-5)(levelDiff))(S.mult(1.5))(S.mult(1)),
-    S.ifElse(() => S.and(isMeleeFighter(attacker))(S.gt(2)(distance || 1)))(S.mult(0))(S.mult(1)),
-    S.ifElse(() => S.and(isRangedFighter(attacker))(S.gt(20)(distance || 1)))(S.mult(0))(S.mult(1)),
-    S.ifElse(() => isAlly(attacker)(attacked))(S.mult(0))(S.mult(1))
-  ]))(1),
-  S.map(S.Right)(S.mult(damage || 1)),
-  realDamage => S.Right(S.pipe([
+const attack = ({ attacker, attacked, damage, distance, damageModifier }) => pipeKorElse(attacker)([
+  canBeAttackedBy(attacker),
+  isNotAttackingSelf(attacker),
+  getLevelDiff(attacker),
+  levelDiff => pipeRight([
+    modifyIf(S.mult(0.5))(() => S.gte(5)(levelDiff)),
+    modifyIf(S.mult(1.5))(() => S.lte(-5)(levelDiff)),
+    zeroIf(() => S.and(isMeleeFighter(attacker))(!inRange(2)(distance || 1))),
+    zeroIf(() => S.and(isRangedFighter(attacker))(!inRange(20)(distance || 1))),
+    zeroIf(() => isAlly(attacker)(attacked))
+  ])(damageModifier || 1),
+  mapRight(S.mult(damage || 1)),
+  realDamage => pipeRight([
     getHealth,
     S.sub(realDamage),
     S.max(0)
-  ])(attacked)),
-  S.map(S.Right)(newHealth => update({ health: newHealth })(attacked))
-])(S.Right(attacked)))
+  ])(attacked),
+  mapRight(newHealth => update({ health: newHealth })(attacked))
+])(attacked)
 
 /**
  * @param character object
